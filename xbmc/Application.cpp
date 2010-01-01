@@ -228,6 +228,7 @@
 #include "dialogs/GUIDialogKeyboardGeneric.h"
 #include "dialogs/GUIDialogYesNo.h"
 #include "dialogs/GUIDialogOK.h"
+#include "dialogs/GUIDialogCraffSignal.h"
 #include "dialogs/GUIDialogProgress.h"
 #include "dialogs/GUIDialogExtendedProgressBar.h"
 #include "dialogs/GUIDialogSelect.h"
@@ -1322,6 +1323,7 @@ bool CApplication::Initialize()
     g_windowManager.Add(new CGUIDialogSelect);
     g_windowManager.Add(new CGUIDialogMusicInfo);
     g_windowManager.Add(new CGUIDialogOK);
+    g_windowManager.Add(new CGUIDialogCraffSignal);
     g_windowManager.Add(new CGUIDialogVideoInfo);
     g_windowManager.Add(new CGUIDialogTextViewer);
     g_windowManager.Add(new CGUIWindowFullScreen);

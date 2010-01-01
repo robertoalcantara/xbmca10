@@ -26,6 +26,8 @@ SRCS=GUIDialogBoxBase.cpp \
      GUIDialogTextViewer.cpp \
      GUIDialogVolumeBar.cpp \
      GUIDialogYesNo.cpp \
+     GUIDialogCraffSignal.cpp \
+
 
 LIB=dialogs.a
 
