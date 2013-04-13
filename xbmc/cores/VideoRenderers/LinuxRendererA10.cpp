@@ -36,7 +36,9 @@
 #include "utils/GLUtils.h"
 #include "settings/Settings.h"
 #include "settings/AdvancedSettings.h"
+#include "settings/DisplaySettings.h"
 #include "settings/GUISettings.h"
+#include "settings/MediaSettings.h"
 #include "guilib/FrameBufferObject.h"
 #include "VideoShaders/YUV2RGBShader.h"
 #include "VideoShaders/VideoFilterShader.h"
@@ -74,6 +76,22 @@ CLinuxRendererA10::CLinuxRendererA10()
   m_pVideoFilterShader = NULL;
   m_scalingMethod = VS_SCALINGMETHOD_LINEAR;
   m_scalingMethodGui = (ESCALINGMETHOD)-1;
+
+/* check if needed (import from LinuxRendererGLES.cpp) - rellla
+  m_fbo.width = 0.0;
+  m_fbo.height = 0.0;
+  m_NumYV12Buffers = 0;
+  m_iLastRenderBuffer = 0;
+  m_bConfigured = false;
+  m_bValidated = false;
+  m_bImageReady = false;
+  m_clearColour = 0.0f;
+  m_pboSupported = false;
+  m_pboUsed = false;
+  m_nonLinStretch = false;
+  m_nonLinStretchGui = false;
+  m_pixelRatio = 0.0f; 
+*/
 
   // default texture handlers to YUV
   m_textureUpload = &CLinuxRendererA10::UploadYV12Texture;
@@ -133,7 +151,7 @@ bool CLinuxRendererA10::Configure(unsigned int width, unsigned int height, unsig
   // Calculate the input frame aspect ratio.
   CalculateFrameAspectRatio(d_width, d_height);
   ChooseBestResolution(fps);
-  SetViewMode(g_settings.m_currentVideoSettings.m_ViewMode);
+  SetViewMode(CMediaSettings::Get().GetCurrentVideoSettings().m_ViewMode);
   ManageDisplay();
 
   m_bConfigured = true;
@@ -350,6 +368,7 @@ void CLinuxRendererA10::Update(bool bPauseDrawing)
   if (!m_bConfigured) return;
   ManageDisplay();
   ManageTextures();
+  m_scalingMethodGui = (ESCALINGMETHOD)-1;
 }
 
 void CLinuxRendererA10::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
@@ -485,7 +504,7 @@ unsigned int CLinuxRendererA10::PreInit()
   m_bConfigured = false;
   m_bValidated = false;
   UnInit();
-  m_resolution = g_guiSettings.m_LookAndFeelResolution;
+  m_resolution = CDisplaySettings::Get().GetCurrentResolution();
   if ( m_resolution == RES_WINDOW )
     m_resolution = RES_DESKTOP;
 
@@ -503,9 +522,9 @@ unsigned int CLinuxRendererA10::PreInit()
 
 void CLinuxRendererA10::UpdateVideoFilter()
 {
-  if (m_scalingMethodGui == g_settings.m_currentVideoSettings.m_ScalingMethod)
+  if (m_scalingMethodGui == CMediaSettings::Get().GetCurrentVideoSettings().m_ScalingMethod)
     return;
-  m_scalingMethodGui = g_settings.m_currentVideoSettings.m_ScalingMethod;
+  m_scalingMethodGui = CMediaSettings::Get().GetCurrentVideoSettings().m_ScalingMethod;
   m_scalingMethod    = m_scalingMethodGui;
 
   if(!Supports(m_scalingMethod))
@@ -730,8 +749,8 @@ void CLinuxRendererA10::RenderSinglePass(int index, int field)
   glActiveTexture(GL_TEXTURE0);
   VerifyGLState();
 
-  m_pYUVShader->SetBlack(g_settings.m_currentVideoSettings.m_Brightness * 0.01f - 0.5f);
-  m_pYUVShader->SetContrast(g_settings.m_currentVideoSettings.m_Contrast * 0.02f);
+  m_pYUVShader->SetBlack(CMediaSettings::Get().GetCurrentVideoSettings().m_Brightness * 0.01f - 0.5f);
+  m_pYUVShader->SetContrast(CMediaSettings::Get().GetCurrentVideoSettings().m_Contrast * 0.02f);
   m_pYUVShader->SetWidth(im.width);
   m_pYUVShader->SetHeight(im.height);
   if     (field == FIELD_TOP)
@@ -852,8 +871,8 @@ void CLinuxRendererA10::RenderMultiPass(int index, int field)
   m_fbo.BeginRender();
   VerifyGLState();
 
-  m_pYUVShader->SetBlack(g_settings.m_currentVideoSettings.m_Brightness * 0.01f - 0.5f);
-  m_pYUVShader->SetContrast(g_settings.m_currentVideoSettings.m_Contrast * 0.02f);
+  m_pYUVShader->SetBlack(CMediaSettings::Get().GetCurrentVideoSettings().m_Brightness * 0.01f - 0.5f);
+  m_pYUVShader->SetContrast(CMediaSettings::Get().GetCurrentVideoSettings().m_Contrast * 0.02f);
   m_pYUVShader->SetWidth(im.width);
   m_pYUVShader->SetHeight(im.height);
   if     (field == FIELD_TOP)
