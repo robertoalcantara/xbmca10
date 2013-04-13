@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2010-2012 Team XBMC
+ *      Copyright (C) 2010-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -21,11 +21,11 @@
 #ifndef _BITSTREAMCONVERTER_H_
 #define _BITSTREAMCONVERTER_H_
 
+#include <stdio.h>
 #include <stdint.h>
+
 #include "DllAvUtil.h"
 #include "DllAvFormat.h"
-#include "DllAvFilter.h"
-#include "DllAvCodec.h"
 
 typedef struct {
   uint8_t *buffer, *start;

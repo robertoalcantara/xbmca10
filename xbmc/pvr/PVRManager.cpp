@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@
 #include "music/tags/MusicInfoTag.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/GUISettings.h"
+#include "settings/MediaSettings.h"
 #include "settings/Settings.h"
 #include "threads/SingleLock.h"
 #include "windows/GUIWindowPVR.h"
@@ -53,6 +54,7 @@
 #include "timers/PVRTimers.h"
 #include "interfaces/AnnouncementManager.h"
 #include "addons/AddonInstaller.h"
+#include "guilib/Key.h"
 
 using namespace std;
 using namespace MUSIC_INFO;
@@ -60,7 +62,7 @@ using namespace PVR;
 using namespace EPG;
 
 CPVRManager::CPVRManager(void) :
-    CThread("PVR manager"),
+    CThread("PVRManager"),
     m_channelGroups(NULL),
     m_recordings(NULL),
     m_timers(NULL),
@@ -113,7 +115,7 @@ bool CPVRManager::InstallAddonAllowed(const std::string& strAddonId) const
 
 void CPVRManager::MarkAsOutdated(const std::string& strAddonId, const std::string& strReferer)
 {
-  if (IsStarted() && g_settings.m_bAddonAutoUpdate)
+  if (IsStarted() && g_guiSettings.GetBool("general.addonautoupdate"))
   {
     CSingleLock lock(m_critSection);
     m_outdatedAddons.insert(make_pair<string, string>(strAddonId, strReferer));
@@ -1016,12 +1018,82 @@ bool CPVRManager::UpdateItem(CFileItem& item)
 
 bool CPVRManager::StartPlayback(const CPVRChannel *channel, bool bPreview /* = false */)
 {
-  g_settings.m_bStartVideoWindowed = bPreview;
+  CMediaSettings::Get().SetVideoStartWindowed(bPreview);
   CApplicationMessenger::Get().MediaPlay(CFileItem(*channel));
   CLog::Log(LOGNOTICE, "PVRManager - %s - started playback on channel '%s'",
       __FUNCTION__, channel->ChannelName().c_str());
   return true;
 }
+
+bool CPVRManager::StartPlayback(PlaybackType type /* = PlaybackTypeAny */)
+{
+  bool bIsRadio(false);
+  bool bReturn(false);
+  bool bIsPlaying(false);
+  CFileItemPtr channel;
+
+  // check if the desired PlaybackType is already playing,
+  // and if not, try to grab the last played channel of this type
+  switch (type)
+  {
+    case PlaybackTypeRadio:
+      if (IsPlayingRadio())
+        bIsPlaying = true;
+      else
+        channel = m_channelGroups->GetGroupAllRadio()->GetLastPlayedChannel();
+      bIsRadio = true;
+      break;
+
+    case PlaybackTypeTv:
+      if (IsPlayingTV())
+        bIsPlaying = true;
+      else
+        channel = m_channelGroups->GetGroupAllTV()->GetLastPlayedChannel();
+      break;
+
+    default:
+      if (IsPlaying())
+        bIsPlaying = true;
+      else
+        channel = m_channelGroups->GetLastPlayedChannel();
+  }
+
+  // we're already playing? Then nothing to do
+  if (bIsPlaying)
+    return true;
+
+  // if we have a last played channel, start playback
+  if (channel && channel->HasPVRChannelInfoTag())
+  {
+    bReturn = StartPlayback(channel->GetPVRChannelInfoTag(), false);
+  }
+  else
+  {
+    // if we don't, find the active channel group of the demanded type and play it's first channel
+    CPVRChannelGroupPtr channelGroup = GetPlayingGroup(bIsRadio);
+    if (channelGroup)
+    {
+      // try to start playback of first channel in this group
+      CFileItemPtr channel = channelGroup->GetByIndex(0);
+      if (channel && channel->HasPVRChannelInfoTag())
+        bReturn = StartPlayback(channel->GetPVRChannelInfoTag(), false);
+    }
+  }
+
+  if (!bReturn)
+  {
+    CLog::Log(LOGNOTICE, "PVRManager - %s - could not determine %s channel to start playback with. No last played channel found, and first channel of active group could also not be determined.", __FUNCTION__, bIsRadio ? "radio": "tv");
+
+    CStdString msg;
+    msg.Format(g_localizeStrings.Get(19035).c_str(), g_localizeStrings.Get(bIsRadio ? 19021 : 19020).c_str()); // RADIO/TV could not be played. Check the log for details.
+    CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error,
+            g_localizeStrings.Get(19166), // PVR information
+            msg);
+  }
+
+  return bReturn;
+}
+
 
 bool CPVRManager::PerformChannelSwitch(const CPVRChannel &channel, bool bPreview)
 {
@@ -1083,9 +1155,11 @@ bool CPVRManager::PerformChannelSwitch(const CPVRChannel &channel, bool bPreview
 
     CLog::Log(LOGERROR, "PVRManager - %s - failed to switch to channel '%s'", __FUNCTION__, channel.ChannelName().c_str());
 
+    CStdString msg;
+    msg.Format(g_localizeStrings.Get(19035).c_str(), channel.ChannelName().c_str()); // CHANNELNAME could not be played. Check the log for details.
     CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error,
         g_localizeStrings.Get(19166), // PVR information
-        g_localizeStrings.Get(19035)); // This channel cannot be played. Check the log for details.
+        msg);
   }
   else
   {
@@ -1321,6 +1395,42 @@ void CPVRManager::ExecutePendingJobs(void)
   }
 
   m_triggerEvent.Reset();
+}
+
+bool CPVRManager::OnAction(const CAction &action)
+{
+  // process PVR specific play actions
+  if (action.GetID() == ACTION_PVR_PLAY || action.GetID() == ACTION_PVR_PLAY_TV || action.GetID() == ACTION_PVR_PLAY_RADIO)
+  {
+    // pvr not active yet, show error message
+    if (!IsStarted())
+    {
+      CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Warning, g_localizeStrings.Get(19045), g_localizeStrings.Get(19044));
+    }
+    else
+    {
+      // see if we're already playing a PVR stream and if not or the stream type
+      // doesn't match the demanded type, start playback of according type
+      bool isPlayingPvr(IsPlaying() && g_application.CurrentFileItem().HasPVRChannelInfoTag());
+      switch (action.GetID())
+      {
+        case ACTION_PVR_PLAY:
+          if (!isPlayingPvr)
+            StartPlayback(PlaybackTypeAny);
+          break;
+        case ACTION_PVR_PLAY_TV:
+          if (!isPlayingPvr || g_application.CurrentFileItem().GetPVRChannelInfoTag()->IsRadio())
+            StartPlayback(PlaybackTypeTv);
+          break;
+        case ACTION_PVR_PLAY_RADIO:
+          if (!isPlayingPvr || !g_application.CurrentFileItem().GetPVRChannelInfoTag()->IsRadio())
+            StartPlayback(PlaybackTypeRadio);
+          break;
+      }
+    }
+    return true;
+  }
+  return false;
 }
 
 bool CPVRChannelSwitchJob::DoWork(void)

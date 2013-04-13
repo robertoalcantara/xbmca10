@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -20,6 +20,8 @@
  */
 
 #include <vector>
+
+#include "settings/ISettingsHandler.h"
 #include "utils/StdString.h"
 #include "utils/GlobalsHandling.h"
 
@@ -80,12 +82,14 @@ struct RefreshVideoLatency
 
 typedef std::vector<TVShowRegexp> SETTINGS_TVSHOWLIST;
 
-class CAdvancedSettings
+class CAdvancedSettings : public ISettingsHandler
 {
   public:
     CAdvancedSettings();
 
     static CAdvancedSettings* getInstance();
+
+    virtual void OnSettingsLoaded();
 
     void Initialize();
     bool Initialized() { return m_initialized; };
@@ -164,6 +168,7 @@ class CAdvancedSettings
     bool m_DXVAForceProcessorRenderer;
     bool m_DXVANoDeintProcForProgressive;
     int  m_videoFpsDetect;
+    bool m_videoDisableHi10pMultithreading;
 
     CStdString m_videoDefaultPlayer;
     CStdString m_videoDefaultDVDPlayer;
@@ -172,11 +177,6 @@ class CAdvancedSettings
     float m_slideshowBlackBarCompensation;
     float m_slideshowZoomAmount;
     float m_slideshowPanAmount;
-
-    bool m_lcdHeartbeat;
-    bool m_lcdDimOnScreenSave;
-    int m_lcdScrolldelay;
-    CStdString m_lcdHostName;
 
     int m_songInfoDuration;
     int m_logLevel;
@@ -365,6 +365,16 @@ class CAdvancedSettings
     bool m_initialized;
 
     void SetDebugMode(bool debug);
+
+    // runtime settings which cannot be set from advancedsettings.xml
+    CStdString m_pictureExtensions;
+    CStdString m_musicExtensions;
+    CStdString m_videoExtensions;
+    CStdString m_discStubExtensions;
+
+    CStdString m_logFolder;
+
+    CStdString m_userAgent;
 };
 
 XBMC_GLOBAL(CAdvancedSettings,g_advancedSettings);

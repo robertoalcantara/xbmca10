@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -69,6 +69,7 @@ CoffLoader::CoffLoader()
   NumOfDirectories = 0;
   NumOfSections = 0;
   FileHeaderOffset = 0;
+  EntryAddress = 0;
   hModule = NULL;
 }
 
@@ -486,7 +487,6 @@ char *CoffLoader::GetStringTblOff(int Offset)
 
 char *CoffLoader::GetSymbolName(SymbolTable_t *sym)
 {
-  static char shortname[9];
   __int64 index = sym->Name.Offset;
   int low = (int)(index & 0xFFFFFFFF);
   int high = (int)((index >> 32) & 0xFFFFFFFF);
@@ -497,6 +497,7 @@ char *CoffLoader::GetSymbolName(SymbolTable_t *sym)
   }
   else
   {
+    static char shortname[9];
     memset(shortname, 0, 9);
     strncpy(shortname, (char *)sym->Name.ShortName, 8);
     return shortname;

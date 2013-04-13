@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -139,7 +139,7 @@ bool CLog::Init(const char* path)
   CSingleLock waitLock(critSec);
   if (!m_file)
   {
-    // g_settings.m_logFolder is initialized in the CSettings constructor
+    // g_advancedSettings.m_logFolder is initialized in the CSettings constructor
     // and changed in CApplication::Create()
     CStdString strLogFile, strLogFileOld;
 

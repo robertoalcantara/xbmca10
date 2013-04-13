@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 
 CDVDMessageTracker g_dvdMessageTracker;
 
-CDVDMessageTracker::CDVDMessageTracker() : CThread()
+CDVDMessageTracker::CDVDMessageTracker() : CThread("DVDMsgTracker")
 {
   m_bInitialized = false;
   InitializeCriticalSection(&m_critSection);
@@ -76,7 +76,7 @@ void CDVDMessageTracker::UnRegister(CDVDMsg* pMsg)
       delete pItem;
       break;
     }
-    iter++;
+    ++iter;
   }
 
 }
@@ -108,7 +108,7 @@ void CDVDMessageTracker::Process()
           pItem->m_debug_logged = true;
         }
       }
-      iter++;
+      ++iter;
     }
 
   }

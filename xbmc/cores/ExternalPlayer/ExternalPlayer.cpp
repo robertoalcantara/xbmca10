@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -39,6 +39,7 @@
 #include "utils/log.h"
 #include "cores/AudioEngine/AEFactory.h"
 #if defined(_WIN32)
+  #include "utils/CharsetConverter.h"
   #include "Windows.h"
   #ifdef HAS_IRSERVERSUITE
     #include "input/windows/IRServerSuite.h"
@@ -46,6 +47,9 @@
 #endif
 #if defined(HAS_LIRC)
   #include "input/linux/LIRC.h"
+#endif
+#if defined(TARGET_ANDROID)
+  #include "android/activity/XBMCApp.h"
 #endif
 
 // If the process ends in less than this time (ms), we assume it's a launcher
@@ -64,7 +68,7 @@ extern HWND g_hWnd;
 
 CExternalPlayer::CExternalPlayer(IPlayerCallback& callback)
     : IPlayer(callback),
-      CThread("CExternalPlayer")
+      CThread("ExternalPlayer")
 {
   m_bAbortRequest = false;
   m_bIsPlaying = false;
@@ -82,6 +86,10 @@ CExternalPlayer::CExternalPlayer(IPlayerCallback& callback)
   m_playOneStackItem = false;
 
   m_dialog = NULL;
+  m_hwndXbmc = NULL;
+  m_xPos = 0;
+  m_yPos = 0;
+
 
 #if defined(_WIN32)
   memset(&m_processInfo, 0, sizeof(m_processInfo));
@@ -311,6 +319,8 @@ void CExternalPlayer::Process()
   BOOL ret = TRUE;
 #if defined(_WIN32)
   ret = ExecuteAppW32(strFName.c_str(),strFArgs.c_str());
+#elif defined(TARGET_ANDROID)
+  ret = ExecuteAppAndroid(m_filename.c_str(), mainFile.c_str());
 #elif defined(_LINUX) || defined(TARGET_DARWIN_OSX)
   ret = ExecuteAppLinux(strFArgs.c_str());
 #endif
@@ -443,7 +453,7 @@ BOOL CExternalPlayer::ExecuteAppW32(const char* strPath, const char* strSwitches
 }
 #endif
 
-#if defined(_LINUX) || defined(TARGET_DARWIN_OSX)
+#if !defined(TARGET_ANDROID) && (defined(_LINUX) || defined(TARGET_DARWIN_OSX))
 BOOL CExternalPlayer::ExecuteAppLinux(const char* strSwitches)
 {
   CLog::Log(LOGNOTICE, "%s: %s", __FUNCTION__, strSwitches);
@@ -459,6 +469,22 @@ BOOL CExternalPlayer::ExecuteAppLinux(const char* strSwitches)
   g_RemoteControl.setUsed(remoteused);
   g_RemoteControl.Initialize();
 #endif
+
+  if (ret != 0)
+  {
+    CLog::Log(LOGNOTICE, "%s: Failure: %d", __FUNCTION__, ret);
+  }
+
+  return ret == 0;
+}
+#endif
+
+#if defined(TARGET_ANDROID)
+BOOL CExternalPlayer::ExecuteAppAndroid(const char* strSwitches,const char* strPath)
+{
+  CLog::Log(LOGNOTICE, "%s: %s", __FUNCTION__, strSwitches);
+
+  int ret = CXBMCApp::StartActivity(strSwitches, "android.intent.action.VIEW", "video/*", strPath);
 
   if (ret != 0)
   {

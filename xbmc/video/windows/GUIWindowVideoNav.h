@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -80,6 +80,10 @@ protected:
 
   bool GetItemsForTag(const CStdString &strHeading, const std::string &type, CFileItemList &items, int idTag = -1, bool showAll = true);
   static CStdString GetLocalizedType(const std::string &strType);
+
+  bool GetSetForMovie(CFileItemPtr &movieItem, CFileItemPtr &selectedSet);
+  bool GetMoviesForSet(CFileItemPtr &setItem, CFileItemList &originalMovies, CFileItemList &selectedMovies);
+  bool SetMovieSet(CFileItemPtr &movieItem, CFileItemPtr &selectedSet);
 
   VECSOURCES m_shares;
 };

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2010-2012 Team XBMC
+ *      Copyright (C) 2010-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -132,7 +132,7 @@ bool CRingBuffer::ReadData(CRingBuffer &rBuf, unsigned int size)
 /* Write data to ring buffer from buffer specified in 'buf'. Amount read in is
  * specified by 'size'.
  */
-bool CRingBuffer::WriteData(char *buf, unsigned int size)
+bool CRingBuffer::WriteData(const char *buf, unsigned int size)
 {
   CSingleLock lock(m_critSection);
   if (size > m_size - m_fillCount)

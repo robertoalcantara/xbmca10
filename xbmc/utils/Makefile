@@ -35,8 +35,6 @@ SRCS=AlarmClock.cpp \
      JSONVariantWriter.cpp \
      LabelFormatter.cpp \
      LangCodeExpander.cpp \
-     LCD.cpp \
-     LCDFactory.cpp \
      log.cpp \
      md5.cpp \
      Observer.cpp \
@@ -47,6 +45,7 @@ SRCS=AlarmClock.cpp \
      RecentlyAddedJob.cpp \
      RegExp.cpp \
      RingBuffer.cpp \
+     RssManager.cpp \
      RssReader.cpp \
      ScraperParser.cpp \
      ScraperUrl.cpp \

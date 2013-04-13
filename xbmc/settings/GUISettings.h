@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -26,6 +26,17 @@
 #include "addons/IAddon.h"
 #include "utils/Observer.h"
 #include "utils/GlobalsHandling.h"
+
+//FIXME - after eden - make that one nicer somehow...
+#if defined(TARGET_DARWIN_IOS) && !defined(TARGET_DARWIN_IOS_ATV2)
+#include "system.h" //for HAS_SKIN_TOUCHED
+#endif
+
+#if defined(HAS_SKIN_TOUCHED) && defined(TARGET_DARWIN_IOS) && !defined(TARGET_DARWIN_IOS_ATV2)
+#define DEFAULT_SKIN          "skin.touched"
+#else
+#define DEFAULT_SKIN          "skin.confluence"
+#endif
 
 class TiXmlNode;
 class TiXmlElement;
@@ -84,18 +95,12 @@ class TiXmlElement;
 #define AUDIO_ANALOG      0
 #define AUDIO_IEC958      1
 #define AUDIO_HDMI        2
+#define AUDIO_COUNT       3
 #define AUDIO_IS_BITSTREAM(x) ((x) == AUDIO_IEC958 || (x) == AUDIO_HDMI)
 
 #define VIDEO_NORMAL 0
 #define VIDEO_LETTERBOX 1
 #define VIDEO_WIDESCREEN 2
-
-// LCD settings
-#define LCD_TYPE_NONE        0
-#define LCD_TYPE_LCD_HD44780 1
-#define LCD_TYPE_LCD_KS0073  2
-#define LCD_TYPE_VFD         3
-#define LCD_TYPE_LCDPROC     4
 
 #define MODCHIP_SMARTXX   0
 #define MODCHIP_XENIUM    1
@@ -219,16 +224,6 @@ enum SubtitleAlign
   SUBTITLE_ALIGN_BOTTOM_OUTSIDE,
   SUBTITLE_ALIGN_TOP_INSIDE,
   SUBTITLE_ALIGN_TOP_OUTSIDE
-};
-
-// replay gain settings struct for quick access by the player multiple
-// times per second (saves doing settings lookup)
-struct ReplayGainSettings
-{
-  int iPreAmp;
-  int iNoGainPreAmp;
-  int iType;
-  bool bAvoidClipping;
 };
 
 // base class for all settings types
@@ -442,13 +437,7 @@ public:
     m_vecCategories.clear();
   };
 
-  CSettingsCategory* AddCategory(const char *strCategory, int labelID)
-  {
-    CSettingsCategory *pCategory = new CSettingsCategory(strCategory, labelID);
-    if (pCategory)
-      m_vecCategories.push_back(pCategory);
-    return pCategory;
-  }
+  CSettingsCategory* AddCategory(const char *strCategory, int labelID);
   void GetCategories(vecSettingsCategory &vecCategories);
   int GetLabelID() { return m_labelID; };
   int GetGroupID() { return m_groupID; };
@@ -507,15 +496,6 @@ public:
   void LoadXML(TiXmlElement *pRootElement, bool hideSettings = false);
   void SaveXML(TiXmlNode *pRootNode);
   void LoadMasterLock(TiXmlElement *pRootElement);
-
-  RESOLUTION GetResolution() const;
-  static RESOLUTION GetResFromString(const CStdString &res);
-  void SetResolution(RESOLUTION res);
-  bool SetLanguage(const CStdString &strLanguage);
-
-  //m_LookAndFeelResolution holds the real gui resolution
-  RESOLUTION m_LookAndFeelResolution;
-  ReplayGainSettings m_replayGain;
 
   void Clear();
 

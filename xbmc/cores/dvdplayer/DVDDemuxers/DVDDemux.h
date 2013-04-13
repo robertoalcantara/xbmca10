@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ class CDVDInputStream;
   #include "config.h"
 #endif
 #ifndef _LINUX
-enum CodecID;
+// enum CodecID; // auto defined when neccesary
 #include <libavcodec/avcodec.h>
 #else
 extern "C" {
@@ -207,11 +207,8 @@ class CDemuxStreamSubtitle : public CDemuxStream
 public:
   CDemuxStreamSubtitle() : CDemuxStream()
   {
-    identifier = 0;
     type = STREAM_SUBTITLE;
   }
-
-  int identifier;
 };
 
 class CDemuxStreamTeletext : public CDemuxStream

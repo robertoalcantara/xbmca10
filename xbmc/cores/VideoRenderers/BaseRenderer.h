@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -97,7 +97,7 @@ protected:
   bool       FindResolutionFromOverride(float fps, float& weight, bool fallback);
   void       FindResolutionFromFpsMatch(float fps, float& weight);
   RESOLUTION FindClosestResolution(float fps, float multiplier, RESOLUTION current, float& weight);
-  float      RefreshWeight(float refresh, float fps);
+  static float      RefreshWeight(float refresh, float fps);
   void       CalcNormalDisplayRect(float offsetX, float offsetY, float screenWidth, float screenHeight, float inputFrameRatio, float zoomAmount, float verticalShift);
   void       CalculateFrameAspectRatio(unsigned int desired_width, unsigned int desired_height);
   void       ManageDisplay();

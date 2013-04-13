@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@
 
 #include "threads/SystemClock.h"
 #include "system.h"
-#include "Application.h"
 #include "ShoutcastFile.h"
 #include "settings/GUISettings.h"
 #include "guilib/GUIWindowManager.h"
@@ -43,7 +42,7 @@ using namespace XFILE;
 using namespace MUSIC_INFO;
 
 CShoutcastFile::CShoutcastFile() :
-  IFile(), CThread("Shoutcast file")
+  IFile(), CThread("ShoutcastFile")
 {
   m_discarded = 0;
   m_currint = 0;
@@ -134,6 +133,7 @@ void CShoutcastFile::Close()
 {
   StopThread();
   delete[] m_buffer;
+  m_buffer = NULL;
   m_file.Close();
 }
 

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -89,7 +89,9 @@ void CGUIPanelContainer::Process(unsigned int currentTime, CDirtyRegionList &dir
     current++;
   }
 
-  UpdatePageControl(offset);
+  // when we are scrolling up, offset will become lower (integer division, see offset calc)
+  // to have same behaviour when scrolling down, we need to set page control to offset+1
+  UpdatePageControl(offset + (m_scroller.IsScrollingDown() ? 1 : 0));
 
   CGUIControl::Process(currentTime, dirtyregions);
 }

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -22,7 +22,22 @@
 #include "DllLoader.h"
 #include "DllLoaderContainer.h"
 
-CoffLoader::CoffLoader()
+CoffLoader::CoffLoader() :
+  hModule           (NULL ),
+  CoffFileHeader    (NULL ),
+  OptionHeader      (NULL ),
+  WindowsHeader     (NULL ),
+  Directory         (NULL ),
+  SectionHeader     (NULL ),
+  SymTable          (NULL ),
+  StringTable       (NULL ),
+  SectionData       (NULL ),
+  EntryAddress      (0    ),
+  NumberOfSymbols   (0    ),
+  SizeOfStringTable (0    ),
+  NumOfDirectories  (0    ),
+  NumOfSections     (0    ),
+  FileHeaderOffset  (0    )
 {
 }
 

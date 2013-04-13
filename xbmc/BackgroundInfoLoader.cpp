@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -134,7 +134,7 @@ void CBackgroundInfoLoader::Load(CFileItemList& items)
   m_nActiveThreads = nThreads;
   for (int i=0; i < nThreads; i++)
   {
-    CThread *pThread = new CThread(this, "Background Loader");
+    CThread *pThread = new CThread(this, "BackgroundLoader");
     pThread->Create();
 #ifndef _LINUX
     pThread->SetPriority(THREAD_PRIORITY_BELOW_NORMAL);

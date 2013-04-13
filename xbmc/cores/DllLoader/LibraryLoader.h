@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -50,6 +50,8 @@ public:
   int GetRef();
 
 private:
+  LibraryLoader(const LibraryLoader&);
+  LibraryLoader& operator=(const LibraryLoader&);
   char* m_sFileName;
   char* m_sPath;
   int   m_iRefCount;

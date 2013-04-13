@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2011-2012 Team XBMC
+ *      Copyright (C) 2011-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -121,6 +121,16 @@ private:
    \return true on successful install, false on failure.
    */
   bool DoInstall(const ADDON::AddonPtr &addon, const CStdString &hash = "", bool update = false, const CStdString &referer = "", bool background = true);
+
+  /*! \brief Check whether dependencies of an addon exist or are installable.
+   Iterates through the addon's dependencies, checking they're installed or installable.
+   Each dependency must also satisfies CheckDependencies in turn.
+   \param addon the addon to check
+   \param preDeps previous dependencies encountered during recursion. aids in avoiding infinite recursion
+   \return true if dependencies are available, false otherwise.
+   */
+  bool CheckDependencies(const ADDON::AddonPtr &addon,
+                         std::vector<std::string>& preDeps);
 
   void PrunePackageCache();
   int64_t EnumeratePackageFolder(std::map<CStdString,CFileItemList*>& result);

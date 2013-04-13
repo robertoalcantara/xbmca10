@@ -1,5 +1,5 @@
 /*
-*      Copyright (C) 2005-2012 Team XBMC
+*      Copyright (C) 2005-2013 Team XBMC
 *      http://www.xbmc.org
 *
 *  This Program is free software; you can redistribute it and/or modify
@@ -29,8 +29,6 @@
 #include "input/MouseStat.h"
 #include "utils/log.h"
 #include "powermanagement/PowerManager.h"
-
-PHANDLE_EVENT_FUNC CWinEventsBase::m_pEventFunc = NULL;
 
 bool CWinEventsLinux::m_initialized = false;
 CLinuxInputDevices CWinEventsLinux::m_devices;

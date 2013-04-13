@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -44,7 +44,7 @@ public:
   {
     T* p = NULL;
     CSingleLock lock(m_Lock);
-    if (m_Queue.size())
+    if (!m_Queue.empty())
     {
       p = m_Queue.front();
       m_Queue.pop_front();

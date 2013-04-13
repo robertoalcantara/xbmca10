@@ -123,7 +123,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\liblame\include;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_WINDOWS;_WINDOWS;_MSVC;WIN32;NDEBUG;_WIN32_WINNT=0x0501;NTDDI_VERSION=0x05010300;NOMINMAX;_USE_32BIT_TIME_T;HAS_GL;__STDC_CONSTANT_MACROS;XMD_H;TAGLIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -168,7 +168,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\liblame\include;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Platinum\Source\Extras;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Platinum\Source\Extras;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_WINDOWS;_WINDOWS;_MSVC;WIN32;_DEBUG;_WIN32_WINNT=0x0501;NTDDI_VERSION=0x05010300;NOMINMAX;_USE_32BIT_TIME_T;HAS_DX;D3D_DEBUG_INFO;__STDC_CONSTANT_MACROS;_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0;TAGLIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -262,7 +262,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\liblame\include;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Platinum\Source\Extras;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Platinum\Source\Extras;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_WINDOWS;_WINDOWS;_MSVC;WIN32;NDEBUG;_WIN32_WINNT=0x0501;NTDDI_VERSION=0x05010300;NOMINMAX;_USE_32BIT_TIME_T;HAS_DX;__STDC_CONSTANT_MACROS;TAGLIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -306,7 +306,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\liblame\include;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\;..\..\xbmc\;..\..\xbmc\cores\dvdplayer;..\..\xbmc\win32;..\..\lib;..\..\lib\ffmpeg;..\..\lib\ffmpeg\include-xbmc-win32;..\..\lib\libUPnP\Platinum\Source\Devices\MediaRenderer;..\..\lib\libUPnP\Platinum\Source\Devices\MediaConnect;..\..\lib\libUPnP\Platinum\Source\Devices\MediaServer;..\..\lib\libUPnP\Platinum\Source\Platinum;..\..\lib\libUPnP\Platinum\Source\Core;..\..\lib\libUPnP\Neptune\Source\Core;..\..\lib\libUPnP\Neptune\Source\System\Win32;..\..\lib\win32\pcre;..\..\lib\win32;..\..\xbmc\cores\AudioEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_WINDOWS;_WINDOWS;_MSVC;WIN32;_DEBUG;_WIN32_WINNT=0x0501;NTDDI_VERSION=0x05010300;NOMINMAX;_USE_32BIT_TIME_T;HAS_GL;__STDC_CONSTANT_MACROS;_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0;TAGLIB_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -369,6 +369,7 @@
     <ClCompile Include="..\..\xbmc\addons\Skin.cpp" />
     <ClCompile Include="..\..\xbmc\Application.cpp" />
     <ClCompile Include="..\..\xbmc\ApplicationMessenger.cpp" />
+    <ClCompile Include="..\..\xbmc\AppParamParser.cpp" />
     <ClCompile Include="..\..\xbmc\Autorun.cpp" />
     <ClCompile Include="..\..\xbmc\AutoSwitch.cpp" />
     <ClCompile Include="..\..\xbmc\BackgroundInfoLoader.cpp" />
@@ -458,7 +459,9 @@
     <ClCompile Include="..\..\xbmc\filesystem\CurlFile.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\DAAPDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\DAAPFile.cpp" />
+    <ClCompile Include="..\..\xbmc\filesystem\DAVCommon.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\DAVDirectory.cpp" />
+    <ClCompile Include="..\..\xbmc\filesystem\DAVFile.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\Directory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\DirectoryCache.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\DirectoryFactory.cpp" />
@@ -485,13 +488,12 @@
     <ClCompile Include="..\..\xbmc\filesystem\iso9660.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\ISO9660Directory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\ISOFile.cpp" />
-    <ClCompile Include="..\..\xbmc\filesystem\LastFMDirectory.cpp" />
-    <ClCompile Include="..\..\xbmc\filesystem\LastFMFile.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\LibraryDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MemBufferCache.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MultiPathDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MultiPathFile.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MusicDatabaseDirectory.cpp" />
+    <ClCompile Include="..\..\xbmc\filesystem\MusicDatabaseDirectory\DirectoryNodeGrouped.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MusicDatabaseFile.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MusicFileDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\MusicSearchDirectory.cpp" />
@@ -568,8 +570,7 @@
     <ClCompile Include="..\..\xbmc\filesystem\UPnPDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\UPnPFile.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\VideoDatabaseDirectory.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeCountry.cpp" />
-    <ClCompile Include="..\..\xbmc\filesystem\VideoDatabaseDirectory\DirectoryNodeTags.cpp" />
+    <ClCompile Include="..\..\xbmc\filesystem\VideoDatabaseDirectory\DirectoryNodeGrouped.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\windows\WINFileSMB.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\windows\WINSMBDirectory.cpp" />
     <ClCompile Include="..\..\xbmc\filesystem\VirtualDirectory.cpp" />
@@ -583,6 +584,7 @@
     <ClCompile Include="..\..\xbmc\GUIInfoManager.cpp" />
     <ClCompile Include="..\..\xbmc\GUILargeTextureManager.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\AnimatedGif.cpp" />
+    <ClCompile Include="..\..\xbmc\guilib\cximage.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\D3DResource.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\DDSImage.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\DirectXGraphics.cpp" />
@@ -668,6 +670,7 @@
     <ClCompile Include="..\..\xbmc\guilib\GUIWindow.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\GUIWindowManager.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\GUIWrappingListContainer.cpp" />
+    <ClCompile Include="..\..\xbmc\guilib\imagefactory.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\IWindowManagerCallback.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\JpegIO.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\Key.cpp" />
@@ -693,13 +696,14 @@
     <ClCompile Include="..\..\xbmc\guilib\XBTF.cpp" />
     <ClCompile Include="..\..\xbmc\guilib\XBTFReader.cpp" />
     <ClCompile Include="..\..\xbmc\GUIPassword.cpp" />
-    <ClCompile Include="..\..\xbmc\GUIViewControl.cpp" />
-    <ClCompile Include="..\..\xbmc\GUIViewState.cpp" />
     <ClCompile Include="..\..\xbmc\input\ButtonTranslator.cpp" />
     <ClCompile Include="..\..\xbmc\input\InertialScrollingHandler.cpp" />
     <ClCompile Include="..\..\xbmc\input\KeyboardLayoutConfiguration.cpp" />
     <ClCompile Include="..\..\xbmc\input\KeyboardStat.cpp" />
     <ClCompile Include="..\..\xbmc\input\MouseStat.cpp" />
+    <ClCompile Include="..\..\xbmc\input\touch\generic\GenericTouchActionHandler.cpp" />
+    <ClCompile Include="..\..\xbmc\input\touch\generic\GenericTouchSwipeDetector.cpp" />
+    <ClCompile Include="..\..\xbmc\input\touch\ITouchInputHandling.cpp" />
     <ClCompile Include="..\..\xbmc\input\windows\IRServerSuite.cpp" />
     <ClCompile Include="..\..\xbmc\input\windows\IrssMessage.cpp" />
     <ClCompile Include="..\..\xbmc\input\windows\WINJoystick.cpp" />
@@ -793,7 +797,6 @@
     <ClCompile Include="..\..\xbmc\music\karaoke\karaokelyricstextustar.cpp" />
     <ClCompile Include="..\..\xbmc\music\karaoke\karaokewindowbackground.cpp" />
     <ClCompile Include="..\..\xbmc\music\karaoke\karaokevideobackground.cpp" />
-    <ClCompile Include="..\..\xbmc\music\LastFmManager.cpp" />
     <ClCompile Include="..\..\xbmc\music\MusicDatabase.cpp" />
     <ClCompile Include="..\..\xbmc\music\MusicDbUrl.cpp" />
     <ClCompile Include="..\..\xbmc\music\MusicInfoLoader.cpp" />
@@ -832,17 +835,16 @@
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPWebinterfaceAddonsHandler.cpp" />
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\HTTPWebinterfaceHandler.cpp" />
     <ClCompile Include="..\..\xbmc\network\httprequesthandler\IHTTPRequestHandler.cpp" />
-    <ClCompile Include="..\..\xbmc\network\libscrobbler\lastfmscrobbler.cpp" />
-    <ClCompile Include="..\..\xbmc\network\libscrobbler\librefmscrobbler.cpp" />
-    <ClCompile Include="..\..\xbmc\network\libscrobbler\scrobbler.cpp" />
     <ClCompile Include="..\..\xbmc\network\Network.cpp" />
     <ClCompile Include="..\..\xbmc\network\Socket.cpp" />
     <ClCompile Include="..\..\xbmc\network\TCPServer.cpp" />
     <ClCompile Include="..\..\xbmc\network\UdpClient.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnP.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnPInternal.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\UPnPPlayer.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnPRenderer.cpp" />
     <ClCompile Include="..\..\xbmc\network\upnp\UPnPServer.cpp" />
+    <ClCompile Include="..\..\xbmc\network\upnp\UPnPSettings.cpp" />
     <ClCompile Include="..\..\xbmc\network\WebServer.cpp" />
     <ClCompile Include="..\..\xbmc\network\websocket\WebSocket.cpp" />
     <ClCompile Include="..\..\xbmc\network\websocket\WebSocketManager.cpp" />
@@ -857,6 +859,7 @@
     <ClCompile Include="..\..\xbmc\PartyModeManager.cpp" />
     <ClCompile Include="..\..\xbmc\PasswordManager.cpp" />
     <ClCompile Include="..\..\xbmc\peripherals\bus\PeripheralBus.cpp" />
+    <ClCompile Include="..\..\xbmc\peripherals\bus\virtual\PeripheralBusCEC.cpp" />
     <ClCompile Include="..\..\xbmc\peripherals\bus\win32\PeripheralBusUSB.cpp" />
     <ClCompile Include="..\..\xbmc\peripherals\devices\Peripheral.cpp" />
     <ClCompile Include="..\..\xbmc\peripherals\devices\PeripheralBluetooth.cpp" />
@@ -892,6 +895,11 @@
     <ClCompile Include="..\..\xbmc\powermanagement\DPMSSupport.cpp" />
     <ClCompile Include="..\..\xbmc\powermanagement\PowerManager.cpp" />
     <ClCompile Include="..\..\xbmc\powermanagement\windows\Win32PowerSyscall.cpp" />
+    <ClCompile Include="..\..\xbmc\profiles\dialogs\GUIDialogLockSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\profiles\dialogs\GUIDialogProfileSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\profiles\Profile.cpp" />
+    <ClCompile Include="..\..\xbmc\profiles\ProfilesManager.cpp" />
+    <ClCompile Include="..\..\xbmc\profiles\windows\GUIWindowSettingsProfile.cpp" />
     <ClCompile Include="..\..\xbmc\programs\GUIViewStatePrograms.cpp" />
     <ClCompile Include="..\..\xbmc\programs\GUIWindowPrograms.cpp" />
     <ClCompile Include="..\..\xbmc\pvr\addons\PVRClient.cpp" />
@@ -941,21 +949,20 @@
     <ClCompile Include="..\..\xbmc\rendering\RenderSystem.cpp" />
     <ClCompile Include="..\..\xbmc\SectionLoader.cpp" />
     <ClCompile Include="..\..\xbmc\settings\AdvancedSettings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\AppParamParser.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIDialogContentSettings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIDialogLockSettings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIDialogProfileSettings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIDialogSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\dialogs\GUIDialogContentSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\dialogs\GUIDialogSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\DisplaySettings.cpp" />
     <ClCompile Include="..\..\xbmc\settings\GUISettings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIWindowSettings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIWindowSettingsCategory.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIWindowSettingsProfile.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIWindowSettingsScreenCalibration.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\GUIWindowTestPattern.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\Profile.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\MediaSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\MediaSourceSettings.cpp" />
     <ClCompile Include="..\..\xbmc\settings\Settings.cpp" />
-    <ClCompile Include="..\..\xbmc\settings\SettingsControls.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\SkinSettings.cpp" />
     <ClCompile Include="..\..\xbmc\settings\VideoSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\windows\GUISettingControls.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\windows\GUIWindowSettings.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\windows\GUIWindowSettingsCategory.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\windows\GUIWindowSettingsScreenCalibration.cpp" />
+    <ClCompile Include="..\..\xbmc\settings\windows\GUIWindowTestPattern.cpp" />
     <ClCompile Include="..\..\xbmc\storage\AutorunMediaJob.cpp" />
     <ClCompile Include="..\..\xbmc\storage\cdioSupport.cpp" />
     <ClCompile Include="..\..\xbmc\storage\IoSupport.cpp" />
@@ -997,6 +1004,7 @@
     <ClCompile Include="..\..\xbmc\TextureCacheJob.cpp" />
     <ClCompile Include="..\..\xbmc\TextureDatabase.cpp" />
     <ClCompile Include="..\..\xbmc\DatabaseManager.cpp" />
+    <ClInclude Include="..\..\xbmc\AppParamParser.h" />
     <ClInclude Include="..\..\xbmc\cores\AudioEngine\AEAudioFormat.h" />
     <ClInclude Include="..\..\xbmc\cores\AudioEngine\AEFactory.h" />
     <ClInclude Include="..\..\xbmc\cores\AudioEngine\AESinkFactory.h" />
@@ -1032,12 +1040,25 @@
     <ClInclude Include="..\..\xbmc\DbUrl.h" />
     <ClInclude Include="..\..\xbmc\dialogs\GUIDialogMediaFilter.h" />
     <ClInclude Include="..\..\xbmc\filesystem\HTTPFile.h" />
+    <ClInclude Include="..\..\xbmc\filesystem\DAVCommon.h" />
+    <ClInclude Include="..\..\xbmc\filesystem\DAVFile.h" />
     <ClInclude Include="..\..\xbmc\filesystem\ImageFile.h" />
-    <ClInclude Include="..\..\xbmc\filesystem\VideoDatabaseDirectory\DirectoryNodeTags.h" />
+    <ClInclude Include="..\..\xbmc\filesystem\MusicDatabaseDirectory\DirectoryNodeGrouped.h" />
+    <ClInclude Include="..\..\xbmc\filesystem\VideoDatabaseDirectory\DirectoryNodeGrouped.h" />
     <ClInclude Include="..\..\xbmc\filesystem\windows\WINFileSMB.h" />
     <ClInclude Include="..\..\xbmc\filesystem\windows\WINSMBDirectory.h" />
+    <ClInclude Include="..\..\xbmc\guilib\cximage.h" />
     <ClInclude Include="..\..\xbmc\guilib\GUIKeyboard.h" />
     <ClInclude Include="..\..\xbmc\guilib\GUIKeyboardFactory.h" />
+    <ClInclude Include="..\..\xbmc\guilib\iimage.h" />
+    <ClInclude Include="..\..\xbmc\guilib\imagefactory.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\generic\GenericTouchActionHandler.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\generic\GenericTouchSwipeDetector.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\generic\IGenericTouchGestureDetector.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\ITouchActionHandler.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\ITouchInputHandler.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\ITouchInputHandling.h" />
+    <ClInclude Include="..\..\xbmc\input\touch\TouchTypes.h" />
     <ClInclude Include="..\..\xbmc\input\windows\WINJoystick.h" />
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\PVROperations.h" />
     <ClInclude Include="..\..\xbmc\interfaces\legacy\Addon.h" />
@@ -1082,6 +1103,29 @@
     <ClInclude Include="..\..\xbmc\interfaces\python\PyContext.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\pythreadstate.h" />
     <ClInclude Include="..\..\xbmc\music\karaoke\karaokevideobackground.h" />
+    <ClInclude Include="..\..\xbmc\peripherals\bus\virtual\PeripheralBusCEC.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\UPnPSettings.h" />
+    <ClInclude Include="..\..\xbmc\profiles\dialogs\GUIDialogLockSettings.h" />
+    <ClInclude Include="..\..\xbmc\profiles\dialogs\GUIDialogProfileSettings.h" />
+    <ClInclude Include="..\..\xbmc\profiles\Profile.h" />
+    <ClInclude Include="..\..\xbmc\profiles\ProfilesManager.h" />
+    <ClInclude Include="..\..\xbmc\profiles\windows\GUIWindowSettingsProfile.h" />
+    <ClInclude Include="..\..\xbmc\settings\dialogs\GUIDialogContentSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\dialogs\GUIDialogSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\DisplaySettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\ISettingsHandler.h" />
+    <ClInclude Include="..\..\xbmc\settings\ISubSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\MediaSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\MediaSourceSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\SkinSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\windows\GUISettingControls.h" />
+    <ClInclude Include="..\..\xbmc\settings\windows\GUIWindowSettings.h" />
+    <ClInclude Include="..\..\xbmc\settings\windows\GUIWindowSettingsCategory.h" />
+    <ClInclude Include="..\..\xbmc\settings\windows\GUIWindowSettingsScreenCalibration.h" />
+    <ClInclude Include="..\..\xbmc\settings\windows\GUIWindowTestPattern.h" />
+    <ClInclude Include="..\..\xbmc\utils\IRssObserver.h" />
+    <ClInclude Include="..\..\xbmc\utils\RssManager.h" />
+    <ClInclude Include="..\..\xbmc\utils\Vector.h" />
     <ClInclude Include="..\..\xbmc\video\FFmpegVideoDecoder.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\swig.h" />
     <ClInclude Include="..\..\xbmc\interfaces\python\XBPython.h" />
@@ -1095,6 +1139,7 @@
     <ClInclude Include="..\..\xbmc\network\DllLibShairplay.h" />
     <ClInclude Include="..\..\xbmc\network\upnp\UPnP.h" />
     <ClInclude Include="..\..\xbmc\network\upnp\UPnPInternal.h" />
+    <ClInclude Include="..\..\xbmc\network\upnp\UPnPPlayer.h" />
     <ClInclude Include="..\..\xbmc\network\upnp\UPnPRenderer.h" />
     <ClInclude Include="..\..\xbmc\network\upnp\UPnPServer.h" />
     <ClInclude Include="..\..\xbmc\network\websocket\WebSocket.h" />
@@ -1152,8 +1197,6 @@
     <ClInclude Include="..\..\xbmc\filesystem\iso9660.h" />
     <ClInclude Include="..\..\xbmc\filesystem\ISO9660Directory.h" />
     <ClInclude Include="..\..\xbmc\filesystem\ISOFile.h" />
-    <ClInclude Include="..\..\xbmc\filesystem\LastFMDirectory.h" />
-    <ClInclude Include="..\..\xbmc\filesystem\LastFMFile.h" />
     <ClInclude Include="..\..\xbmc\filesystem\LibraryDirectory.h" />
     <ClInclude Include="..\..\xbmc\filesystem\MultiPathDirectory.h" />
     <ClInclude Include="..\..\xbmc\filesystem\MultiPathFile.h" />
@@ -1218,6 +1261,7 @@
     </ClInclude>
     <ClInclude Include="..\..\xbmc\interfaces\json-rpc\AddonsOperations.h" />
     <ClCompile Include="..\..\xbmc\ThumbLoader.cpp" />
+    <ClCompile Include="..\..\xbmc\utils\RssManager.cpp" />
     <ClCompile Include="..\..\xbmc\utils\test\TestUrlOptions.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">true</ExcludedFromBuild>
@@ -1225,6 +1269,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release (OpenGL)|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\xbmc\utils\Vector.cpp" />
+    <ClCompile Include="..\..\xbmc\video\PlayerController.cpp" />
     <ClCompile Include="..\..\xbmc\video\VideoThumbLoader.cpp" />
     <ClCompile Include="..\..\xbmc\music\MusicThumbLoader.cpp" />
     <ClCompile Include="..\..\xbmc\ThumbnailCache.cpp" />
@@ -1275,7 +1321,6 @@
     <ClCompile Include="..\..\xbmc\utils\JSONVariantWriter.cpp" />
     <ClCompile Include="..\..\xbmc\utils\LabelFormatter.cpp" />
     <ClCompile Include="..\..\xbmc\utils\LangCodeExpander.cpp" />
-    <ClCompile Include="..\..\xbmc\utils\LCD.cpp" />
     <ClCompile Include="..\..\xbmc\utils\log.cpp" />
     <ClCompile Include="..\..\xbmc\utils\md5.cpp" />
     <ClCompile Include="..\..\xbmc\utils\Observer.cpp" />
@@ -1644,7 +1689,10 @@
     <ClCompile Include="..\..\xbmc\video\windows\GUIWindowVideoBase.cpp" />
     <ClCompile Include="..\..\xbmc\video\windows\GUIWindowVideoNav.cpp" />
     <ClCompile Include="..\..\xbmc\video\windows\GUIWindowVideoPlaylist.cpp" />
-    <ClCompile Include="..\..\xbmc\ViewDatabase.cpp" />
+    <ClCompile Include="..\..\xbmc\view\GUIViewControl.cpp" />
+    <ClCompile Include="..\..\xbmc\view\GUIViewState.cpp" />
+    <ClCompile Include="..\..\xbmc\view\ViewDatabase.cpp" />
+    <ClCompile Include="..\..\xbmc\view\ViewStateSettings.cpp" />
     <ClCompile Include="..\..\xbmc\win32\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Testsuite|Win32'">Create</PrecompiledHeader>
@@ -1769,7 +1817,6 @@
     <ClCompile Include="..\..\xbmc\cores\DllLoader\exports\emu_dummy.cpp" />
     <ClCompile Include="..\..\xbmc\cores\DllLoader\exports\emu_kernel32.cpp" />
     <ClCompile Include="..\..\xbmc\cores\DllLoader\exports\emu_msvcrt.cpp" />
-    <ClCompile Include="..\..\xbmc\cores\DllLoader\exports\win32-dirent.cpp" />
     <ClCompile Include="..\..\xbmc\cores\DllLoader\exports\emu_socket\inet_aton.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug Testsuite|Win32'">CompileAsCpp</CompileAs>
@@ -1829,20 +1876,12 @@
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeAlbumTop100.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeAlbumTop100Song.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeArtist.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeGenre.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeOverview.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeRoot.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeSingles.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeSong.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeSongTop100.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeTop100.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeYear.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug Testsuite|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (OpenGL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeYearAlbum.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeYearSong.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\QueryParams.cpp" />
@@ -1853,18 +1892,8 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (OpenGL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeActor.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeDirector.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeEpisodes.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeGenre.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug Testsuite|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (OpenGL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (OpenGL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-    </ClCompile>
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeMoviesOverview.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeMusicVideoAlbum.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeMusicVideosOverview.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeOverview.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
@@ -1884,13 +1913,10 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release (OpenGL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeSeasons.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeSets.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeStudio.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTitleMovies.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTitleMusicVideos.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTitleTvShows.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTvShowsOverview.cpp" />
-    <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeYear.cpp" />
     <ClCompile Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\QueryParams.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (DirectX)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug Testsuite|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
@@ -2018,7 +2044,6 @@
     <ClInclude Include="..\..\xbmc\FileItem.h" />
     <ClInclude Include="..\..\xbmc\filesystem\PVRDirectory.h" />
     <ClInclude Include="..\..\xbmc\filesystem\PVRFile.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeCountry.h" />
     <ClInclude Include="..\..\xbmc\GUIInfoManager.h" />
     <ClInclude Include="..\..\xbmc\GUILargeTextureManager.h" />
     <ClInclude Include="..\..\xbmc\guilib\AnimatedGif.h" />
@@ -2141,8 +2166,6 @@
     <ClInclude Include="..\..\xbmc\guilib\XBTFReader.h" />
     <ClInclude Include="..\..\xbmc\GUIPassword.h" />
     <ClInclude Include="..\..\xbmc\GUIUserMessages.h" />
-    <ClInclude Include="..\..\xbmc\GUIViewControl.h" />
-    <ClInclude Include="..\..\xbmc\GUIViewState.h" />
     <ClInclude Include="..\..\xbmc\input\ButtonTranslator.h" />
     <ClInclude Include="..\..\xbmc\input\InertialScrollingHandler.h" />
     <ClInclude Include="..\..\xbmc\input\KeyboardLayoutConfiguration.h" />
@@ -2204,7 +2227,6 @@
     <ClInclude Include="..\..\xbmc\music\karaoke\karaokelyricstextlrc.h" />
     <ClInclude Include="..\..\xbmc\music\karaoke\karaokelyricstextustar.h" />
     <ClInclude Include="..\..\xbmc\music\karaoke\karaokewindowbackground.h" />
-    <ClInclude Include="..\..\xbmc\music\LastFmManager.h" />
     <ClInclude Include="..\..\xbmc\music\MusicDatabase.h" />
     <ClInclude Include="..\..\xbmc\music\MusicInfoLoader.h" />
     <ClInclude Include="..\..\xbmc\music\Song.h" />
@@ -2234,10 +2256,6 @@
     <ClInclude Include="..\..\xbmc\network\EventServer.h" />
     <ClInclude Include="..\..\xbmc\network\GUIDialogAccessPoints.h" />
     <ClInclude Include="..\..\xbmc\network\GUIDialogNetworkSetup.h" />
-    <ClInclude Include="..\..\xbmc\network\libscrobbler\errors.h" />
-    <ClInclude Include="..\..\xbmc\network\libscrobbler\lastfmscrobbler.h" />
-    <ClInclude Include="..\..\xbmc\network\libscrobbler\librefmscrobbler.h" />
-    <ClInclude Include="..\..\xbmc\network\libscrobbler\scrobbler.h" />
     <ClInclude Include="..\..\xbmc\network\Network.h" />
     <ClInclude Include="..\..\xbmc\network\Socket.h" />
     <ClInclude Include="..\..\xbmc\network\TCPServer.h" />
@@ -2338,20 +2356,8 @@
     <ClInclude Include="..\..\xbmc\rendering\RenderSystem.h" />
     <ClInclude Include="..\..\xbmc\SectionLoader.h" />
     <ClInclude Include="..\..\xbmc\settings\AdvancedSettings.h" />
-    <ClInclude Include="..\..\xbmc\settings\AppParamParser.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIDialogContentSettings.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIDialogLockSettings.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIDialogProfileSettings.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIDialogSettings.h" />
     <ClInclude Include="..\..\xbmc\settings\GUISettings.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIWindowSettings.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIWindowSettingsCategory.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIWindowSettingsProfile.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIWindowSettingsScreenCalibration.h" />
-    <ClInclude Include="..\..\xbmc\settings\GUIWindowTestPattern.h" />
-    <ClInclude Include="..\..\xbmc\settings\Profile.h" />
     <ClInclude Include="..\..\xbmc\settings\Settings.h" />
-    <ClInclude Include="..\..\xbmc\settings\SettingsControls.h" />
     <ClInclude Include="..\..\xbmc\settings\VideoSettings.h" />
     <ClInclude Include="..\..\xbmc\SortFileItem.h" />
     <ClInclude Include="..\..\xbmc\storage\AutorunMediaJob.h" />
@@ -2379,6 +2385,7 @@
     <ClInclude Include="..\..\xbmc\TextureDatabase.h" />
     <ClInclude Include="..\..\xbmc\DatabaseManager.h" />
     <ClInclude Include="..\..\xbmc\ThumbLoader.h" />
+    <ClInclude Include="..\..\xbmc\video\PlayerController.h" />
     <ClInclude Include="..\..\xbmc\video\VideoThumbLoader.h" />
     <ClInclude Include="..\..\xbmc\music\MusicThumbLoader.h" />
     <ClInclude Include="..\..\xbmc\ThumbnailCache.h" />
@@ -2426,7 +2433,6 @@
     <ClInclude Include="..\..\xbmc\utils\JSONVariantWriter.h" />
     <ClInclude Include="..\..\xbmc\utils\LabelFormatter.h" />
     <ClInclude Include="..\..\xbmc\utils\LangCodeExpander.h" />
-    <ClInclude Include="..\..\xbmc\utils\LCD.h" />
     <ClInclude Include="..\..\xbmc\utils\log.h" />
     <ClInclude Include="..\..\xbmc\utils\MathUtils.h" />
     <ClInclude Include="..\..\xbmc\utils\md5.h" />
@@ -2490,8 +2496,11 @@
     <ClInclude Include="..\..\xbmc\video\windows\GUIWindowVideoBase.h" />
     <ClInclude Include="..\..\xbmc\video\windows\GUIWindowVideoNav.h" />
     <ClInclude Include="..\..\xbmc\video\windows\GUIWindowVideoPlaylist.h" />
-    <ClInclude Include="..\..\xbmc\ViewDatabase.h" />
-    <ClInclude Include="..\..\xbmc\ViewState.h" />
+    <ClInclude Include="..\..\xbmc\view\GUIViewControl.h" />
+    <ClInclude Include="..\..\xbmc\view\GUIViewState.h" />
+    <ClInclude Include="..\..\xbmc\view\ViewDatabase.h" />
+    <ClInclude Include="..\..\xbmc\view\ViewState.h" />
+    <ClInclude Include="..\..\xbmc\view\ViewStateSettings.h" />
     <ClInclude Include="..\..\xbmc\win32\pch.h" />
     <ClInclude Include="..\..\xbmc\win32\PlatformDefs.h" />
     <ClInclude Include="..\..\xbmc\XBDateTime.h" />
@@ -2655,7 +2664,6 @@
     <ClInclude Include="..\..\xbmc\cores\DllLoader\exports\emu_dummy.h" />
     <ClInclude Include="..\..\xbmc\cores\DllLoader\exports\emu_kernel32.h" />
     <ClInclude Include="..\..\xbmc\cores\DllLoader\exports\emu_msvcrt.h" />
-    <ClInclude Include="..\..\xbmc\cores\DllLoader\exports\win32-dirent.h" />
     <ClInclude Include="..\..\xbmc\cores\DllLoader\exports\emu_socket\emu_socket.h" />
     <ClInclude Include="..\..\xbmc\cores\DllLoader\exports\util\EmuFileWrapper.h" />
     <ClInclude Include="..\..\xbmc\cores\VideoRenderers\BaseRenderer.h" />
@@ -2696,24 +2704,18 @@
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeAlbumTop100.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeAlbumTop100Song.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeArtist.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeGenre.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeOverview.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeRoot.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeSingles.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeSong.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeSongTop100.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeTop100.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeYear.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeYearAlbum.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\DirectoryNodeYearSong.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\MusicDatabaseDirectory\QueryParams.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNode.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeActor.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeDirector.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeEpisodes.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeGenre.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeMoviesOverview.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeMusicVideoAlbum.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeMusicVideosOverview.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeOverview.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeRecentlyAddedEpisodes.h" />
@@ -2721,13 +2723,10 @@
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeRecentlyAddedMusicVideos.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeRoot.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeSeasons.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeSets.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeStudio.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTitleMovies.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTitleMusicVideos.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTitleTvShows.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeTvShowsOverview.h" />
-    <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\DirectoryNodeYear.h" />
     <ClInclude Include="..\..\xbmc\FileSystem\VideoDatabaseDirectory\QueryParams.h" />
     <ClInclude Include="..\..\xbmc\addons\Addon.h" />
     <ClInclude Include="..\..\xbmc\addons\AddonDll.h" />

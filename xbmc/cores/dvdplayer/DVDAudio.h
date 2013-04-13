@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -30,9 +30,6 @@
 #include "cores/AudioEngine/Utils/AEChannelInfo.h"
 class IAEStream;
 
-#ifndef _LINUX
-enum CodecID;
-#else
 extern "C" {
 #if (defined USE_EXTERNAL_FFMPEG)
   #if (defined HAVE_LIBAVCODEC_AVCODEC_H)
@@ -44,9 +41,8 @@ extern "C" {
   #include "libavcodec/avcodec.h"
 #endif
 }
-#endif
-typedef struct stDVDAudioFrame DVDAudioFrame;
 
+typedef struct stDVDAudioFrame DVDAudioFrame;
 
 class CPTSOutputQueue
 {

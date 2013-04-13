@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -112,6 +112,7 @@ struct SVideoPlane
 
 struct YUVBuffer : SVideoBuffer
 {
+  YUVBuffer() : m_width (0), m_height(0), m_format(RENDER_FMT_NONE), m_activeplanes(0) {}
   ~YUVBuffer();
   bool Create(ERenderFormat format, unsigned int width, unsigned int height);
   virtual void Release();

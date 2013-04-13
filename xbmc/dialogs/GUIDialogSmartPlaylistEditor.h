@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -51,6 +51,8 @@ protected:
   void OnType();
   void OnOrder();
   void OnOrderDirection();
+  void OnGroupBy();
+  void OnGroupMixed();
   void OnOK();
   void OnCancel();
   void UpdateButtons();

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #include "utils/TimeUtils.h"
 #include "Application.h"
 #include "ApplicationMessenger.h"
+#include "Key.h"
 
 CGUIDialog::CGUIDialog(int id, const CStdString &xmlFile)
     : CGUIWindow(id, xmlFile)
@@ -233,7 +234,7 @@ void CGUIDialog::FrameMove()
   { // check if our timer is running
     if (!m_showStartTime)
     {
-      if (HasRendered()) // start timer
+      if (HasProcessed()) // start timer
         m_showStartTime = CTimeUtils::GetFrameTime();
     }
     else

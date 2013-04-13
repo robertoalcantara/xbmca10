@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@
 #include "Favourites.h"
 #include "settings/Settings.h"
 #include "settings/GUISettings.h"
+#include "settings/MediaSettings.h"
+#include "guilib/Key.h"
 #include "guilib/LocalizeStrings.h"
 #include "utils/log.h"
 #include "utils/URIUtils.h"
@@ -126,7 +128,7 @@ bool CGUIWindowVideoPlaylist::OnMessage(CGUIMessage& message)
         if (!g_partyModeManager.IsEnabled())
         {
           g_playlistPlayer.SetShuffle(PLAYLIST_VIDEO, !(g_playlistPlayer.IsShuffled(PLAYLIST_VIDEO)));
-          g_settings.m_bMyVideoPlaylistShuffle = g_playlistPlayer.IsShuffled(PLAYLIST_VIDEO);
+          CMediaSettings::Get().SetVideoPlaylistShuffled(g_playlistPlayer.IsShuffled(PLAYLIST_VIDEO));
           g_settings.Save();
           UpdateButtons();
           Refresh();
@@ -169,7 +171,7 @@ bool CGUIWindowVideoPlaylist::OnMessage(CGUIMessage& message)
           g_playlistPlayer.SetRepeat(PLAYLIST_VIDEO, PLAYLIST::REPEAT_NONE);
 
         // save settings
-        g_settings.m_bMyVideoPlaylistRepeat = g_playlistPlayer.GetRepeat(PLAYLIST_VIDEO) == PLAYLIST::REPEAT_ALL;
+        CMediaSettings::Get().SetVideoPlaylistRepeat(g_playlistPlayer.GetRepeat(PLAYLIST_VIDEO) == PLAYLIST::REPEAT_ALL);
         g_settings.Save();
 
         UpdateButtons();
@@ -330,6 +332,15 @@ bool CGUIWindowVideoPlaylist::OnPlayMedia(int iItem)
     CFileItemPtr pItem = m_vecItems->Get(iItem);
     CStdString strPath = pItem->GetPath();
     g_playlistPlayer.SetCurrentPlaylist(PLAYLIST_VIDEO);
+    // need to update Playlist FileItem's startOffset and resumePoint based on GUIWindowVideoPlaylist FileItem
+    if (pItem->m_lStartOffset == STARTOFFSET_RESUME)
+    {
+      CFileItemPtr pPlaylistItem = g_playlistPlayer.GetPlaylist(PLAYLIST_VIDEO)[iItem];
+      pPlaylistItem->m_lStartOffset = pItem->m_lStartOffset;
+      if (pPlaylistItem->HasVideoInfoTag() && pItem->HasVideoInfoTag())
+        pPlaylistItem->GetVideoInfoTag()->m_resumePoint = pItem->GetVideoInfoTag()->m_resumePoint;
+    }
+    // now play item
     g_playlistPlayer.Play( iItem );
   }
   return true;
@@ -399,10 +410,10 @@ void CGUIWindowVideoPlaylist::GetContextButtons(int itemNumber, CContextButtons 
       if (item->IsVideoDb())
       {
         CFileItem item2(item->GetVideoInfoTag()->m_strFileNameAndPath, false);
-        CPlayerCoreFactory::GetPlayers(item2, vecCores);
+        CPlayerCoreFactory::Get().GetPlayers(item2, vecCores);
       }
       else
-        CPlayerCoreFactory::GetPlayers(*item, vecCores);
+        CPlayerCoreFactory::Get().GetPlayers(*item, vecCores);
       if (vecCores.size() > 1)
         buttons.Add(CONTEXT_BUTTON_PLAY_WITH, 15213); // Play With...
 
@@ -444,11 +455,11 @@ bool CGUIWindowVideoPlaylist::OnContextButton(int itemNumber, CONTEXT_BUTTON but
       if (item->IsVideoDb())
       {
         CFileItem item2(*item->GetVideoInfoTag());
-        CPlayerCoreFactory::GetPlayers(item2, vecCores);
+        CPlayerCoreFactory::Get().GetPlayers(item2, vecCores);
       }
       else
-        CPlayerCoreFactory::GetPlayers(*item, vecCores);
-      g_application.m_eForcedNextPlayer = CPlayerCoreFactory::SelectPlayerDialog(vecCores);
+        CPlayerCoreFactory::Get().GetPlayers(*item, vecCores);
+      g_application.m_eForcedNextPlayer = CPlayerCoreFactory::Get().SelectPlayerDialog(vecCores);
       if (g_application.m_eForcedNextPlayer != EPC_NONE)
         OnClick(itemNumber);
       return true;

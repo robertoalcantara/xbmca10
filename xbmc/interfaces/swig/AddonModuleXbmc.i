@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -113,22 +113,6 @@ using namespace xbmc;
 %feature("python:nokwds") XBMCAddon::xbmc::PlayList::PlayList "true"
 
 %include "interfaces/legacy/Player.h"
-
- // TODO: This needs to be done with a class that holds the Image
- // data. A memory buffer type. Then a typemap needs to be defined
- // for that type.
-%feature("python:method:getImage") RenderCapture
-{
-  RenderCapture* rc = ((RenderCapture*)retrieveApiInstance((PyObject*)self,&PyXBMCAddon_xbmc_RenderCapture_Type,"getImage","XBMCAddon::xbmc::RenderCapture"));
-  if (rc->GetUserState() != CAPTURESTATE_DONE)
-  {
-    PyErr_SetString(PyExc_SystemError, "illegal user state");
-    return NULL;
-  }
-  
-  Py_ssize_t size = rc->getWidth() * rc->getHeight() * 4;
-  return PyByteArray_FromStringAndSize((const char *)rc->GetPixels(), size);
-}
 
 %include "interfaces/legacy/RenderCapture.h"
 

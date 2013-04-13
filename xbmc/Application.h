@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -24,14 +24,15 @@
 #include "XBApplicationEx.h"
 
 #include "guilib/IMsgTargetCallback.h"
-#include "guilib/Key.h"
 #include "threads/Condition.h"
 #include "utils/GlobalsHandling.h"
 
 #include <map>
 
+class CAction;
 class CFileItem;
 class CFileItemList;
+class CKey;
 namespace ADDON
 {
   class CSkinInfo;
@@ -43,10 +44,13 @@ namespace MEDIA_DETECT
 {
   class CAutorun;
 }
+class CPlayerController;
 
-#include "cores/IPlayer.h"
+#include "cores/IPlayerCallback.h"
 #include "cores/playercorefactory/PlayerCoreFactory.h"
 #include "PlayListPlayer.h"
+#include "settings/ISettingsHandler.h"
+#include "settings/ISubSettings.h"
 #if !defined(_WIN32) && defined(HAS_DVD_DRIVE)
 #include "storage/DetectDVDType.h"
 #endif
@@ -54,7 +58,6 @@ namespace MEDIA_DETECT
 #include "win32/WIN32Util.h"
 #endif
 #include "utils/Stopwatch.h"
-#include "utils/CharsetConverter.h"
 #ifdef HAS_PERFORMANCE_SAMPLE
 #include "utils/PerformanceStats.h"
 #endif
@@ -68,6 +71,7 @@ class DPMSSupport;
 class CSplash;
 class CBookmark;
 class CWebServer;
+class IPlayer;
 #ifdef HAS_WEB_SERVER
 class CWebServer;
 class CHTTPImageHandler;
@@ -93,6 +97,11 @@ namespace MUSIC_INFO
   class CMusicInfoScanner;
 }
 
+#define VOLUME_MINIMUM 0.0f        // -60dB
+#define VOLUME_MAXIMUM 1.0f        // 0dB
+#define VOLUME_DYNAMIC_RANGE 90.0f // 60dB
+#define VOLUME_CONTROL_STEPS 90    // 90 steps
+
 class CBackgroundPlayer : public CThread
 {
 public:
@@ -104,7 +113,8 @@ protected:
   int       m_iPlayList;
 };
 
-class CApplication : public CXBApplicationEx, public IPlayerCallback, public IMsgTargetCallback
+class CApplication : public CXBApplicationEx, public IPlayerCallback, public IMsgTargetCallback,
+                     public ISettingsHandler, public ISubSettings
 {
 public:
 
@@ -145,6 +155,8 @@ public:
   void StopJSONRPCServer(bool bWait);
   void StartUPnP();
   void StopUPnP(bool bWait);
+  void StartUPnPClient();
+  void StopUPnPClient();
   void StartUPnPRenderer();
   void StopUPnPRenderer();
   void StartUPnPServer();
@@ -156,7 +168,6 @@ public:
   void RefreshEventServer();
   void StartZeroconf();
   void StopZeroconf();
-  void DimLCDOnPlayback(bool dim);
   bool IsCurrentThread() const;
   void Stop(int exitCode);
   void RestartApp();
@@ -202,16 +213,16 @@ public:
   // Checks whether the screensaver and / or DPMS should become active.
   void CheckScreenSaverAndDPMS();
   void CheckPlayingProgress();
-  void CheckAudioScrobblerStatus();
   void ActivateScreenSaver(bool forceType = false);
 
   virtual void Process();
   void ProcessSlow();
   void ResetScreenSaver();
-  int GetVolume() const;
+  float GetVolume(bool percentage = true) const;
   void SetVolume(float iValue, bool isPercentage = true);
   bool IsMuted() const;
   void ToggleMute(void);
+  void SetMute(bool mute);
   void ShowVolumeBar(const CAction *action = NULL);
   int GetPlaySpeed() const;
   int GetSubtitleDelay() const;
@@ -296,8 +307,11 @@ public:
   inline bool IsInScreenSaver() { return m_bScreenSave; };
   int m_iScreenSaveLock; // spiff: are we checking for a lock? if so, ignore the screensaver state, if -1 we have failed to input locks
 
-  bool m_bIsPaused;
   bool m_bPlaybackStarting;
+
+  bool m_bInBackground;
+  inline bool IsInBackground() { return m_bInBackground; };
+  void SetInBackground(bool background);
 
   CKaraokeLyricsManager* m_pKaraokeMgr;
 
@@ -362,7 +376,15 @@ public:
 
   CSplash* GetSplash() { return m_splash; }
   void SetRenderGUI(bool renderGUI);
+  bool GetRenderGUI() const { return m_renderGUI; };
+
+  bool SetLanguage(const CStdString &strLanguage);
 protected:
+  virtual bool OnSettingsSaving() const;
+
+  virtual bool Load(const TiXmlNode *settings);
+  virtual bool Save(TiXmlNode *settings) const;
+
   bool LoadSkin(const CStdString& skinID);
   void LoadSkin(const boost::shared_ptr<ADDON::CSkinInfo>& skin);
 
@@ -430,11 +452,13 @@ protected:
   VIDEO::CVideoInfoScanner *m_videoInfoScanner;
   MUSIC_INFO::CMusicInfoScanner *m_musicInfoScanner;
 
+  bool m_muted;
+  float m_volumeLevel;
+
   void Mute();
   void UnMute();
 
   void SetHardwareVolume(float hardwareVolume);
-  void UpdateLCD();
 
   void VolumeChanged() const;
 
@@ -445,7 +469,7 @@ protected:
   bool ProcessEventServer(float frameTime);
   bool ProcessPeripherals(float frameTime);
   bool ProcessJoystickEvent(const std::string& joystickName, int button, bool isAxis, float fAmount, unsigned int holdTime = 0);
-  bool ExecuteInputAction(CAction action);
+  bool ExecuteInputAction(const CAction &action);
   int  GetActiveWindowID(void);
 
   float NavigationIdleTime();
@@ -459,6 +483,7 @@ protected:
   void CreateUserDirs();
 
   CSeekHandler *m_seekHandler;
+  CPlayerController *m_playerController;
   CInertialScrollingHandler *m_pInertialScrollingHandler;
   CNetwork    *m_network;
 #ifdef HAS_PERFORMANCE_SAMPLE

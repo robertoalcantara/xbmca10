@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,6 @@ public:
   // Variables for timing
   bool m_bStop;
   int  m_ExitCode;
-  bool m_AppActive;
   bool m_AppFocused;
   bool m_renderGUI;
 

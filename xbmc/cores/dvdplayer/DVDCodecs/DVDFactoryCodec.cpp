@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -26,7 +26,9 @@
 #include "Audio/DVDAudioCodec.h"
 #include "Overlay/DVDOverlayCodec.h"
 
+#if defined(HAVE_LIBVDADECODER)
 #include "Video/DVDVideoCodecVDA.h"
+#endif
 #if defined(HAVE_VIDEOTOOLBOXDECODER)
 #include "Video/DVDVideoCodecVideoToolBox.h"
 #endif
@@ -129,7 +131,7 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, unsigne
   CDVDVideoCodec* pCodec = NULL;
   CDVDCodecOptions options;
 
-  if(formats.size() == 0)
+  if(formats.empty())
     options.m_formats.push_back(RENDER_FMT_YUV420P);
   else
     options.m_formats = formats;

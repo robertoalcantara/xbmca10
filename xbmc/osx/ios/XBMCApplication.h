@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2010-2012 Team XBMC
+ *      Copyright (C) 2010-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -19,7 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
 
-@interface XBMCApplicationDelegate : NSObject <UIApplicationDelegate> {
+@interface XBMCApplicationDelegate : NSObject <UIApplicationDelegate, AVAudioSessionDelegate> {
 }
 @end

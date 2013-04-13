@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
  */
 
 #include "GUIDialogFullScreenInfo.h"
+#include "guilib/Key.h"
 
 CGUIDialogFullScreenInfo::CGUIDialogFullScreenInfo(void)
     : CGUIDialog(WINDOW_DIALOG_FULLSCREEN_INFO, "DialogFullScreenInfo.xml")

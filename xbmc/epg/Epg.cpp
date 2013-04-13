@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -694,7 +694,7 @@ bool CEpg::UpdateFromScraper(time_t start, time_t end)
     }
     else
     {
-      CLog::Log(LOGINFO, "EPG - %s - updating EPG for channel '%s' from client '%i'", __FUNCTION__, channel->ChannelName().c_str(), channel->ClientID());
+      CLog::Log(LOGDEBUG, "EPG - %s - updating EPG for channel '%s' from client '%i'", __FUNCTION__, channel->ChannelName().c_str(), channel->ClientID());
       bGrabSuccess = (g_PVRClients->GetEPGForChannel(*channel, this, start, end) == PVR_ERROR_NO_ERROR);
     }
   }

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -22,6 +22,8 @@
 #include "XBMCApp.h"
 #include "guilib/Key.h"
 #include "windowing/WinEvents.h"
+
+#include "AndroidExtra.h"
 
 static KeyMap keyMap[] = {
   { AKEYCODE_UNKNOWN         , XBMCK_LAST },
@@ -91,7 +93,7 @@ static KeyMap keyMap[] = {
   { AKEYCODE_EXPLORER        , XBMCK_LAST },
   { AKEYCODE_ENVELOPE        , XBMCK_LAST },
   { AKEYCODE_ENTER           , XBMCK_RETURN },
-  { AKEYCODE_DEL             , XBMCK_DELETE },
+  { AKEYCODE_DEL             , XBMCK_BACKSPACE },
   { AKEYCODE_GRAVE           , XBMCK_BACKQUOTE },
   { AKEYCODE_MINUS           , XBMCK_MINUS },
   { AKEYCODE_EQUALS          , XBMCK_EQUALS },
@@ -134,7 +136,9 @@ static KeyMap keyMap[] = {
   { AKEYCODE_BUTTON_THUMBR   , XBMCK_LAST },
   { AKEYCODE_BUTTON_START    , XBMCK_LAST },
   { AKEYCODE_BUTTON_SELECT   , XBMCK_LAST },
-  { AKEYCODE_BUTTON_MODE     , XBMCK_LAST }
+  { AKEYCODE_BUTTON_MODE     , XBMCK_LAST },
+  { AKEYCODE_ESCAPE          , XBMCK_ESCAPE },
+  { AKEYCODE_FORWARD_DEL     , XBMCK_DELETE }
 };
 
 bool CAndroidKey::onKeyboardEvent(AInputEvent* event)

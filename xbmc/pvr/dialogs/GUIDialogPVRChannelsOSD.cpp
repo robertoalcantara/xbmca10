@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -23,13 +23,15 @@
 #include "ApplicationMessenger.h"
 #include "FileItem.h"
 #include "guilib/GUIWindowManager.h"
+#include "guilib/Key.h"
 #include "guilib/LocalizeStrings.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "dialogs/GUIDialogOK.h"
 #include "GUIDialogPVRGuideInfo.h"
-#include "ViewState.h"
+#include "view/ViewState.h"
 #include "settings/GUISettings.h"
 #include "GUIInfoManager.h"
+#include "cores/IPlayer.h"
 
 #include "pvr/PVRManager.h"
 #include "pvr/channels/PVRChannelGroupsContainer.h"
@@ -115,27 +117,28 @@ bool CGUIDialogPVRChannelsOSD::OnMessage(CGUIMessage& message)
       }
     }
     break;
-
-  case GUI_MSG_MOVE:
-    {
-      int iAction = message.GetParam1();
-
-      if (iAction == ACTION_MOVE_RIGHT || iAction == ACTION_MOVE_LEFT)
-      {
-        CPVRChannelGroupPtr group = GetPlayingGroup();
-        CPVRChannelGroupPtr nextGroup = iAction == ACTION_MOVE_RIGHT ? group->GetNextGroup() : group->GetPreviousGroup();
-        g_PVRManager.SetPlayingGroup(nextGroup);
-        SetLastSelectedItem(group->GroupID());
-
-        Update();
-
-        return true;
-      }
-    }
-    break;
   }
 
   return CGUIDialog::OnMessage(message);
+}
+
+bool CGUIDialogPVRChannelsOSD::OnAction(const CAction &action)
+{
+  switch (action.GetID())
+  {
+  case ACTION_PREVIOUS_CHANNELGROUP:
+  case ACTION_NEXT_CHANNELGROUP:
+    {
+      CPVRChannelGroupPtr group = GetPlayingGroup();
+      CPVRChannelGroupPtr nextGroup = action.GetID() == ACTION_NEXT_CHANNELGROUP ? group->GetNextGroup() : group->GetPreviousGroup();
+      g_PVRManager.SetPlayingGroup(nextGroup);
+      SetLastSelectedItem(group->GroupID());
+      Update();
+      return true;
+    }
+  }
+
+  return CGUIDialog::OnAction(action);
 }
 
 CPVRChannelGroupPtr CGUIDialogPVRChannelsOSD::GetPlayingGroup()
@@ -209,9 +212,11 @@ void CGUIDialogPVRChannelsOSD::GotoChannel(int item)
     if (!g_PVRManager.CheckParentalLock(*channel) ||
         !g_application.m_pPlayer->SwitchChannel(*channel))
     {
+      CStdString msg;
+      msg.Format(g_localizeStrings.Get(19035).c_str(), channel->ChannelName().c_str()); // CHANNELNAME could not be played. Check the log for details.
       CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error,
               g_localizeStrings.Get(19166), // PVR information
-              g_localizeStrings.Get(19035)); // This channel cannot be played. Check the log for details.
+              msg);
       return;
     }
   }

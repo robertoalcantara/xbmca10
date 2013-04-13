@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ using namespace PVR;
 typedef std::map<int, CEpg*>::iterator EPGITR;
 
 CEpgContainer::CEpgContainer(void) :
-    CThread("EPG updater")
+    CThread("EPGUpdater")
 {
   m_progressHandle = NULL;
   m_bStop = true;

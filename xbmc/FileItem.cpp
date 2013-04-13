@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -51,7 +51,6 @@
 #include "URL.h"
 #include "settings/GUISettings.h"
 #include "settings/AdvancedSettings.h"
-#include "settings/Settings.h"
 #include "utils/RegExp.h"
 #include "utils/log.h"
 #include "utils/Variant.h"
@@ -785,7 +784,7 @@ bool CFileItem::IsVideo() const
 
   extension.ToLower();
 
-  return (g_settings.m_videoExtensions.Find(extension) != -1);
+  return (g_advancedSettings.m_videoExtensions.Find(extension) != -1);
 }
 
 bool CFileItem::IsEPG() const
@@ -829,7 +828,7 @@ bool CFileItem::IsDiscStub() const
   strExtension.ToLower();
   strExtension += '|';
 
-  return (g_settings.m_discStubExtensions + '|').Find(strExtension) != -1;
+  return (g_advancedSettings.m_discStubExtensions + '|').Find(strExtension) != -1;
 }
 
 bool CFileItem::IsAudio() const
@@ -842,7 +841,6 @@ bool CFileItem::IsAudio() const
   if (HasVideoInfoTag()) return false;
   if (HasPictureInfoTag()) return false;
   if (IsCDDA()) return true;
-  if (!m_bIsFolder && IsLastFM()) return true;
 
   CStdString extension;
   if( m_mimetype.Left(12).Equals("application/") )
@@ -861,12 +859,12 @@ bool CFileItem::IsAudio() const
 
   extension.ToLower();
 
-  return (g_settings.m_musicExtensions.Find(extension) != -1);
+  return (g_advancedSettings.m_musicExtensions.Find(extension) != -1);
 }
 
 bool CFileItem::IsKaraoke() const
 {
-  if ( !IsAudio() || IsLastFM())
+  if ( !IsAudio())
     return false;
 
   return CKaraokeLyricsFactory::HasLyrics( m_strPath );
@@ -892,11 +890,6 @@ bool CFileItem::IsLyrics() const
 bool CFileItem::IsCUESheet() const
 {
   return URIUtils::GetExtension(m_strPath).Equals(".cue", false);
-}
-
-bool CFileItem::IsLastFM() const
-{
-  return URIUtils::IsLastFM(m_strPath);
 }
 
 bool CFileItem::IsInternetStream(const bool bStrictCheck /* = false */) const
@@ -1721,7 +1714,7 @@ void CFileItemList::Assign(const CFileItemList& itemlist, bool append)
   m_cacheToDisc = itemlist.m_cacheToDisc;
 }
 
-bool CFileItemList::Copy(const CFileItemList& items)
+bool CFileItemList::Copy(const CFileItemList& items, bool copyItems /* = true */)
 {
   // assign all CFileItem parts
   *(CFileItem*)this = *(CFileItem*)&items;
@@ -1736,11 +1729,14 @@ bool CFileItemList::Copy(const CFileItemList& items)
   m_sortOrder      = items.m_sortOrder;
   m_sortIgnoreFolders = items.m_sortIgnoreFolders;
 
-  // make a copy of each item
-  for (int i = 0; i < items.Size(); i++)
+  if (copyItems)
   {
-    CFileItemPtr newItem(new CFileItem(*items[i]));
-    Add(newItem);
+    // make a copy of each item
+    for (int i = 0; i < items.Size(); i++)
+    {
+      CFileItemPtr newItem(new CFileItem(*items[i]));
+      Add(newItem);
+    }
   }
 
   return true;
@@ -2129,7 +2125,7 @@ void CFileItemList::FilterCueItems()
                 else
                 { // try replacing the extension with one of our allowed ones.
                   CStdStringArray extensions;
-                  StringUtils::SplitString(g_settings.m_musicExtensions, "|", extensions);
+                  StringUtils::SplitString(g_advancedSettings.m_musicExtensions, "|", extensions);
                   for (unsigned int i = 0; i < extensions.size(); i++)
                   {
                     strMediaFile = URIUtils::ReplaceExtension(pItem->GetPath(), extensions[i]);
@@ -2297,7 +2293,7 @@ void CFileItemList::StackFolders()
           if (bMatch)
           {
             CFileItemList items;
-            CDirectory::GetDirectory(item->GetPath(),items,g_settings.m_videoExtensions);
+            CDirectory::GetDirectory(item->GetPath(),items,g_advancedSettings.m_videoExtensions);
             // optimized to only traverse listing once by checking for filecount
             // and recording last file item for later use
             int nFiles = 0;
@@ -2931,11 +2927,11 @@ CStdString CFileItem::GetLocalFanart() const
     return "";
 
   CFileItemList items;
-  CDirectory::GetDirectory(strDir, items, g_settings.m_pictureExtensions, DIR_FLAG_NO_FILE_DIRS | DIR_FLAG_READ_CACHE | DIR_FLAG_NO_FILE_INFO);
+  CDirectory::GetDirectory(strDir, items, g_advancedSettings.m_pictureExtensions, DIR_FLAG_NO_FILE_DIRS | DIR_FLAG_READ_CACHE | DIR_FLAG_NO_FILE_INFO);
   if (IsOpticalMediaFile())
   { // grab from the optical media parent folder as well
     CFileItemList moreItems;
-    CDirectory::GetDirectory(GetLocalMetadataPath(), moreItems, g_settings.m_pictureExtensions, DIR_FLAG_NO_FILE_DIRS | DIR_FLAG_READ_CACHE | DIR_FLAG_NO_FILE_INFO);
+    CDirectory::GetDirectory(GetLocalMetadataPath(), moreItems, g_advancedSettings.m_pictureExtensions, DIR_FLAG_NO_FILE_DIRS | DIR_FLAG_READ_CACHE | DIR_FLAG_NO_FILE_INFO);
     items.Append(moreItems);
   }
 
@@ -3180,7 +3176,7 @@ CStdString CFileItem::FindTrailer() const
   CStdString strDir;
   URIUtils::GetDirectory(strFile, strDir);
   CFileItemList items;
-  CDirectory::GetDirectory(strDir, items, g_settings.m_videoExtensions, DIR_FLAG_READ_CACHE | DIR_FLAG_NO_FILE_INFO);
+  CDirectory::GetDirectory(strDir, items, g_advancedSettings.m_videoExtensions, DIR_FLAG_READ_CACHE | DIR_FLAG_NO_FILE_INFO);
   URIUtils::RemoveExtension(strFile);
   strFile += "-trailer";
   CStdString strFile3 = URIUtils::AddFileToFolder(strDir, "movie-trailer");

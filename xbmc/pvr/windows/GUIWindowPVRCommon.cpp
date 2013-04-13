@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include "filesystem/StackDirectory.h"
 #include "guilib/GUIMessage.h"
 #include "guilib/GUIWindowManager.h"
+#include "guilib/Key.h"
 #include "guilib/LocalizeStrings.h"
 #include "pvr/PVRManager.h"
 #include "pvr/channels/PVRChannelGroupsContainer.h"
@@ -41,10 +42,12 @@
 #include "pvr/windows/GUIWindowPVRSearch.h"
 #include "pvr/recordings/PVRRecordings.h"
 #include "settings/GUISettings.h"
+#include "settings/MediaSettings.h"
 #include "settings/Settings.h"
 #include "utils/log.h"
 #include "utils/URIUtils.h"
 #include "GUIUserMessages.h"
+#include "cores/IPlayer.h"
 
 using namespace std;
 using namespace PVR;
@@ -537,8 +540,9 @@ bool CGUIWindowPVRCommon::ActionPlayEpg(CFileItem *item)
 
   if (!bReturn)
   {
-    /* cannot play file */
-    CGUIDialogOK::ShowAndGetInput(19033,0,19035,0);
+    CStdString msg;
+    msg.Format(g_localizeStrings.Get(19035).c_str(), channel->ChannelName().c_str()); // CHANNELNAME could not be played. Check the log for details.
+    CGUIDialogOK::ShowAndGetInput(19033, 0, msg, 0);
   }
 
   return bReturn;
@@ -686,7 +690,7 @@ bool CGUIWindowPVRCommon::PlayFile(CFileItem *item, bool bPlayMinimized /* = fal
     return true;
   }
 
-  g_settings.m_bStartVideoWindowed = bPlayMinimized;
+  CMediaSettings::Get().SetVideoStartWindowed(bPlayMinimized);
 
   if (item->HasPVRRecordingInfoTag())
   {
@@ -717,9 +721,15 @@ bool CGUIWindowPVRCommon::PlayFile(CFileItem *item, bool bPlayMinimized /* = fal
 
     if (!bSwitchSuccessful)
     {
+      CStdString msg;
+      CStdString channelName = g_localizeStrings.Get(19029); // Channel
+      if (channel)
+        channelName = channel->ChannelName();
+      msg.Format(g_localizeStrings.Get(19035).c_str(), channelName.c_str()); // CHANNELNAME could not be played. Check the log for details.
+
       CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Error,
               g_localizeStrings.Get(19166), // PVR information
-              g_localizeStrings.Get(19035)); // This channel cannot be played. Check the log for details.
+              msg);
       return false;
     }
   }

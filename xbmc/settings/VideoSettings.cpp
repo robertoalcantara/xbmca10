@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VideoSettings.h"
-#include "Settings.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -33,7 +32,7 @@ CVideoSettings::CVideoSettings()
   m_DeinterlaceMode = VS_DEINTERLACEMODE_OFF;
   m_InterlaceMethod = VS_INTERLACEMETHOD_AUTO;
   m_ScalingMethod = VS_SCALINGMETHOD_LINEAR;
-  m_ViewMode = VIEW_MODE_NORMAL;
+  m_ViewMode = ViewModeNormal;
   m_CustomZoomAmount = 1.0f;
   m_CustomPixelRatio = 1.0f;
   m_CustomVerticalShift = 0.0f;

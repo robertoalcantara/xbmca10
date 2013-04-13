@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -88,7 +88,7 @@ void CGUIDialogProgress::StartModal()
     // we must be running from fullscreen video or similar where the
     // calling thread handles rendering (ie not main app thread) but
     // is waiting on this routine before rendering begins
-    if (!m_hasRendered)
+    if (!HasProcessed())
       break;
   }
 }

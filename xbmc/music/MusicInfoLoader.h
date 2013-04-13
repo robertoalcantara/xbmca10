@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -44,7 +44,7 @@ protected:
 protected:
   CStdString m_strCacheFileName;
   CFileItemList* m_mapFileItems;
-  CSongMap m_songsMap;
+  MAPSONGS m_songsMap;
   CStdString m_strPrevPath;
   CMusicDatabase m_musicDatabase;
   unsigned int m_databaseHits;

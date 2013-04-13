@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -44,7 +44,7 @@ public:
   virtual void          Close();
   virtual unsigned int  Read(void* buffer, int64_t size);
   virtual CStdString    GetContent()                                   { return ""; }
-  virtual bool          SkipNext()                                     { return true; }
+  virtual bool          SkipNext()                                     { return !m_isPlayRecording; }
 
   virtual bool          Delete(const CURL& url);
   virtual bool          Rename(const CURL& url, const CURL& urlnew);

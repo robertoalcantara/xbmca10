@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -222,6 +222,7 @@ void CDVDPlayerSubtitle::Process(double pts)
     while(pOverlay)
     {
       m_pOverlayContainer->Add(pOverlay);
+      pOverlay->Release();
       pOverlay = m_pSubtitleFileParser->Parse(pts);
     }
 
@@ -245,7 +246,7 @@ void CDVDPlayerSubtitle::GetCurrentSubtitle(CStdString& strSubtitle, double pts)
   VecOverlays* pOverlays = m_pOverlayContainer->GetOverlays();
   if (pOverlays)
   {
-    for(vector<CDVDOverlay*>::iterator it = pOverlays->begin();it != pOverlays->end();it++)
+    for(vector<CDVDOverlay*>::iterator it = pOverlays->begin();it != pOverlays->end();++it)
     {
       CDVDOverlay* pOverlay = *it;
 

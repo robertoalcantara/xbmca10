@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ protected:
   inline void ReleaseBuffer(DVDVideoPicture* pPic);
   inline void DeleteBuffer(DVDVideoPicture* pPic);
 
-  int GuessAspect(const mpeg2_sequence_t *sequence, unsigned int *pixel_width, unsigned int *pixel_height);
+  static int GuessAspect(const mpeg2_sequence_t *sequence, unsigned int *pixel_width, unsigned int *pixel_height);
 
   mpeg2dec_t* m_pHandle;
   const mpeg2_info_t* m_pInfo;

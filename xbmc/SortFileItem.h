@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -62,6 +62,7 @@ typedef enum {
   SORT_METHOD_UNSORTED,
   SORT_METHOD_CHANNEL,
   SORT_METHOD_BITRATE,
+  SORT_METHOD_DATE_TAKEN,
   SORT_METHOD_MAX
 } SORT_METHOD;
 

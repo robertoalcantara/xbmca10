@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -42,7 +42,6 @@ using namespace std;
 class OMXPlayerAudio : public CThread
 {
 protected:
-  CCriticalSection      m_flushLock;
   CDVDMessageQueue      m_messageQueue;
   CDVDMessageQueue      &m_messageParent;
 
@@ -58,7 +57,7 @@ protected:
   AEAudioFormat             m_format;
   CAEChannelInfo            m_channelLayout;
   COMXAudioCodecOMX         *m_pAudioCodec;
-  unsigned int              m_speed;
+  int                       m_speed;
   bool                      m_silence;
   double                    m_audioClock;
   double m_error;    //last average error

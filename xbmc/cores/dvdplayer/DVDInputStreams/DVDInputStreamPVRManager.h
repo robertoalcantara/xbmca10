@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -39,6 +39,7 @@ class CDVDInputStreamPVRManager
   : public CDVDInputStream
   , public CDVDInputStream::IChannel
   , public CDVDInputStream::IDisplayTime
+  , public CDVDInputStream::ISeekable
 {
 public:
   CDVDInputStreamPVRManager(IDVDPlayer* pPlayer);
@@ -88,7 +89,7 @@ public:
   void ResetScanTimeout(unsigned int iTimeoutMs);
 protected:
   bool CloseAndOpen(const char* strFile);
-  bool SupportsChannelSwitch(void) const;
+  static bool SupportsChannelSwitch(void);
 
   IDVDPlayer*               m_pPlayer;
   CDVDInputStream*          m_pOtherStream;
@@ -97,7 +98,6 @@ protected:
   XFILE::IRecordable*       m_pRecordable;
   bool                      m_eof;
   std::string               m_strContent;
-  bool                      m_bReopened;
   unsigned int              m_iScanTimeout;
 };
 

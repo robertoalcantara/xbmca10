@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -55,7 +55,7 @@ public:
                            , bool allowThreads=false);
 
   static bool Create(const CStdString& strPath);
-  static bool Exists(const CStdString& strPath);
+  static bool Exists(const CStdString& strPath, bool bUseCache = true);
   static bool Remove(const CStdString& strPath);
 
   /*! \brief Filter files that act like directories from the list, replacing them with their directory counterparts

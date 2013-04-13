@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 
 #define UDPCLIENT_DEBUG_LEVEL LOGDEBUG
 
-CUdpClient::CUdpClient(void) : CThread("CUdpClient")
+CUdpClient::CUdpClient(void) : CThread("UDPClient")
 {}
 
 CUdpClient::~CUdpClient(void)

@@ -5,7 +5,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -104,14 +104,33 @@ public:
   virtual bool IsFileItem() const { return true; };
 
   bool Exists(bool bUseCache = true) const;
+  
+  /*!
+   \brief Check whether an item is a video item. Note that this returns true for
+    anything with a video info tag, so that may include eg. folders.
+   \return true if item is video, false otherwise. 
+   */
   bool IsVideo() const;
+
   bool IsDiscStub() const;
+
+  /*!
+   \brief Check whether an item is a picture item. Note that this returns true for
+    anything with a picture info tag, so that may include eg. folders.
+   \return true if item is picture, false otherwise. 
+   */
   bool IsPicture() const;
   bool IsLyrics() const;
+
+  /*!
+   \brief Check whether an item is an audio item. Note that this returns true for
+    anything with a music info tag, so that may include eg. folders.
+   \return true if item is audio, false otherwise. 
+   */
   bool IsAudio() const;
+
   bool IsKaraoke() const;
   bool IsCUESheet() const;
-  bool IsLastFM() const;
   bool IsInternetStream(const bool bStrictCheck = false) const;
   bool IsPlayList() const;
   bool IsSmartPlayList() const;
@@ -469,13 +488,14 @@ public:
   void Remove(int iItem);
   CFileItemPtr Get(int iItem);
   const CFileItemPtr Get(int iItem) const;
+  const VECFILEITEMS GetList() const { return m_items; }
   CFileItemPtr Get(const CStdString& strPath);
   const CFileItemPtr Get(const CStdString& strPath) const;
   int Size() const;
   bool IsEmpty() const;
   void Append(const CFileItemList& itemlist);
   void Assign(const CFileItemList& itemlist, bool append = false);
-  bool Copy  (const CFileItemList& item);
+  bool Copy  (const CFileItemList& item, bool copyItems = true);
   void Reserve(int iCount);
   void Sort(SORT_METHOD sortMethod, SortOrder sortOrder);
   /* \brief Sorts the items based on the given sorting options

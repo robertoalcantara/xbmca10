@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -121,14 +121,14 @@ void CDVDOverlayContainer::CleanUp(double pts)
         continue;
       }
     }
-    it++;
+    ++it;
   }
 
 }
 
 void CDVDOverlayContainer::Remove()
 {
-  if (m_overlays.size() > 0)
+  if (!m_overlays.empty())
   {
     CDVDOverlay* pOverlay;
 
@@ -144,7 +144,7 @@ void CDVDOverlayContainer::Remove()
 
 void CDVDOverlayContainer::Clear()
 {
-  while (m_overlays.size() > 0) Remove();
+  while (!m_overlays.empty()) Remove();
 }
 
 int CDVDOverlayContainer::GetSize()
@@ -162,7 +162,7 @@ bool CDVDOverlayContainer::ContainsOverlayType(DVDOverlayType type)
   while (!result && it != m_overlays.end())
   {
     if (((CDVDOverlay*)*it)->IsOverlayType(type)) result = true;
-    it++;
+    ++it;
   }
 
   return result;
@@ -176,7 +176,7 @@ void CDVDOverlayContainer::UpdateOverlayInfo(CDVDInputStreamNavigator* pStream, 
   CSingleLock lock(*this);
 
   //Update any forced overlays.
-  for(VecOverlays::iterator it = m_overlays.begin(); it != m_overlays.end(); it++ )
+  for(VecOverlays::iterator it = m_overlays.begin(); it != m_overlays.end(); ++it )
   {
     if ((*it)->IsOverlayType(DVDOVERLAY_TYPE_SPU))
     {

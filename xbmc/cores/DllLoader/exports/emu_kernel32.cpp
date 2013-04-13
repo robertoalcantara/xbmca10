@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -217,13 +217,6 @@ extern "C" DWORD WINAPI dllGetFileAttributesA(LPCSTR lpFileName)
   return GetFileAttributes(str);
 #endif
 }
-
-struct SThreadWrapper
-{
-  LPTHREAD_START_ROUTINE lpStartAddress;
-  LPVOID lpParameter;
-  PCHAR lpDLL;
-};
 
 extern "C" void WINAPI dllSleep(DWORD dwTime)
 {

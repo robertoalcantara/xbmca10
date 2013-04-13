@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -27,7 +27,6 @@
 #include "filesystem/SpecialProtocol.h"
 #include "filesystem/StackDirectory.h"
 #include "network/DNSNameCache.h"
-#include "settings/Settings.h"
 #include "settings/AdvancedSettings.h"
 #include "URL.h"
 #include "StringUtils.h"
@@ -100,9 +99,9 @@ void URIUtils::RemoveExtension(CStdString& strFileName)
     strExtension += "|";
 
     CStdString strFileMask;
-    strFileMask = g_settings.m_pictureExtensions;
-    strFileMask += "|" + g_settings.m_musicExtensions;
-    strFileMask += "|" + g_settings.m_videoExtensions;
+    strFileMask = g_advancedSettings.m_pictureExtensions;
+    strFileMask += "|" + g_advancedSettings.m_musicExtensions;
+    strFileMask += "|" + g_advancedSettings.m_videoExtensions;
 #if defined(TARGET_DARWIN)
     strFileMask += "|.py|.xml|.milk|.xpr|.xbt|.cdg|.app|.applescript|.workflow";
 #else
@@ -698,6 +697,17 @@ bool URIUtils::IsFTP(const CStdString& strFile)
          strFile2.Left(5).Equals("ftps:");
 }
 
+bool URIUtils::IsDAV(const CStdString& strFile)
+{
+  CStdString strFile2(strFile);
+
+  if (IsStack(strFile))
+    strFile2 = CStackDirectory::GetFirstStackedFile(strFile);
+
+  return strFile2.Left(4).Equals("dav:")  ||
+         strFile2.Left(5).Equals("davs:");
+}
+
 bool URIUtils::IsInternetStream(const CURL& url, bool bStrictCheck /* = false */)
 {
   CStdString strProtocol = url.GetProtocol();
@@ -829,11 +839,6 @@ bool URIUtils::IsVideoDb(const CStdString& strFile)
   return strFile.Left(8).Equals("videodb:");
 }
 
-bool URIUtils::IsLastFM(const CStdString& strFile)
-{
-  return strFile.Left(7).Equals("lastfm:");
-}
-
 bool URIUtils::IsBluray(const CStdString& strFile)
 {
   return strFile.Left(7).Equals("bluray:");
@@ -880,9 +885,15 @@ void URIUtils::AddSlashAtEnd(CStdString& strFolder)
   }
 }
 
-bool URIUtils::HasSlashAtEnd(const CStdString& strFile)
+bool URIUtils::HasSlashAtEnd(const CStdString& strFile, bool checkURL /* = false */)
 {
   if (strFile.size() == 0) return false;
+  if (checkURL && IsURL(strFile))
+  {
+    CURL url(strFile);
+    CStdString file = url.GetFileName();
+    return file.IsEmpty() || HasSlashAtEnd(file, false);
+  }
   char kar = strFile.c_str()[strFile.size() - 1];
 
   if (kar == '/' || kar == '\\')

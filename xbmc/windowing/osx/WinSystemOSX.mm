@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 #include "Application.h"
 #include "guilib/DispResource.h"
 #include "guilib/GUIWindowManager.h"
+#include "settings/DisplaySettings.h"
 #include "settings/Settings.h"
 #include "settings/GUISettings.h"
 #include "input/KeyboardStat.h"
@@ -36,6 +37,7 @@
 #include "osx/XBMCHelper.h"
 #include "utils/SystemInfo.h"
 #include "osx/CocoaInterface.h"
+#include "osx/DarwinUtils.h"
 #undef BOOL
 
 #import <SDL/SDL_video.h>
@@ -496,7 +498,7 @@ static void DisplayReconfigured(CGDirectDisplayID display,
       return;
 
     NSScreen* pScreen = nil;
-    unsigned int screenIdx = g_settings.m_ResInfo[res].iScreen;
+    unsigned int screenIdx = CDisplaySettings::Get().GetResolutionInfo(res).iScreen;
 
     if ( screenIdx < [[NSScreen screens] count] )
     {
@@ -620,7 +622,7 @@ bool CWinSystemOSX::CreateNewWindow(const CStdString& name, bool fullScreen, RES
 
   // if we are not starting up windowed, then hide the initial SDL window
   // so we do not see it flash before the fade-out and switch to fullscreen.
-  if (g_guiSettings.m_LookAndFeelResolution != RES_WINDOW)
+  if (CDisplaySettings::Get().GetCurrentResolution() != RES_WINDOW)
     ShowHideNSWindow([view window], false);
 
   // disassociate view from context
@@ -723,7 +725,7 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
   {
     needtoshowme = false;
     ShowHideNSWindow([last_view window], needtoshowme);
-    RESOLUTION_INFO& window = g_settings.m_ResInfo[RES_WINDOW];
+    RESOLUTION_INFO& window = CDisplaySettings::Get().GetResolutionInfo(RES_WINDOW);
     CWinSystemOSX::SetFullScreen(false, window, blankOtherDisplays);
     needtoshowme = true;
   }
@@ -957,10 +959,10 @@ void CWinSystemOSX::UpdateResolutions()
 
   // first screen goes into the current desktop mode
   GetScreenResolution(&w, &h, &fps, 0);
-  UpdateDesktopResolution(g_settings.m_ResInfo[RES_DESKTOP], 0, w, h, fps);
+  UpdateDesktopResolution(CDisplaySettings::Get().GetResolutionInfo(RES_DESKTOP), 0, w, h, fps);
 
   // see resolution.h enum RESOLUTION for how the resolutions
-  // have to appear in the g_settings.m_ResInfo vector
+  // have to appear in the resolution info vector in CDisplaySettings
   // add the desktop resolutions of the other screens
   for(int i = 1; i < GetNumScreens(); i++)
   {
@@ -968,13 +970,13 @@ void CWinSystemOSX::UpdateResolutions()
     // get current resolution of screen i
     GetScreenResolution(&w, &h, &fps, i);
     UpdateDesktopResolution(res, i, w, h, fps);
-    g_settings.m_ResInfo.push_back(res);
+    CDisplaySettings::Get().AddResolutionInfo(res);
   }
 
   if (m_can_display_switch)
   {
     // now just fill in the possible reolutions for the attached screens
-    // and push to the m_ResInfo vector
+    // and push to the resolution info vector
     FillInVideoModes();
   }
 }
@@ -1234,7 +1236,7 @@ void CWinSystemOSX::FillInVideoModes()
         // the same resolution twice... - thats why i add a FIXME here.
         res.strMode.Format("%dx%d @ %.2f", w, h, refreshrate);
         g_graphicsContext.ResetOverscan(res);
-        g_settings.m_ResInfo.push_back(res);
+        CDisplaySettings::Get().AddResolutionInfo(res);
       }
     }
   }
@@ -1359,8 +1361,9 @@ bool CWinSystemOSX::IsObscured(void)
         // if the windowBounds completely encloses our bounds, we are obscured.
         if (!obscureLogged)
         {
-          const char* cstr = CFStringGetCStringPtr(ownerName, CFStringGetSystemEncoding());
-          CLog::Log(LOGDEBUG, "WinSystemOSX: Fullscreen window %s obscures XBMC!", cstr);
+          std::string appName;
+          if (DarwinCFStringRefToUTF8String(ownerName, appName))
+            CLog::Log(LOGDEBUG, "WinSystemOSX: Fullscreen window %s obscures XBMC!", appName.c_str());
           obscureLogged = true;
         }
         m_obscured = true;

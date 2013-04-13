@@ -1,5 +1,5 @@
  /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -86,6 +86,7 @@ namespace XBMCAddon
       SWIGHIDDENVIRTUAL void      AllocResources(bool forceLoad = false);
       SWIGHIDDENVIRTUAL void      FreeResources(bool forceUnLoad = false);
       SWIGHIDDENVIRTUAL bool      OnClick(int iItem);
+      SWIGHIDDENVIRTUAL bool      OnDoubleClick(int iItem);
       SWIGHIDDENVIRTUAL void      Process(unsigned int currentTime, CDirtyRegionList &dirtyregions);
 
       SWIGHIDDENVIRTUAL bool IsMediaWindow() const { TRACE; return true; };

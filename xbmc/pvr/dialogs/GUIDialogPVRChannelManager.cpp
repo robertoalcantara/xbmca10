@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -32,12 +32,13 @@
 #include "guilib/GUIRadioButtonControl.h"
 #include "guilib/GUISpinControlEx.h"
 #include "guilib/GUIWindowManager.h"
+#include "guilib/Key.h"
 #include "guilib/LocalizeStrings.h"
+#include "profiles/ProfilesManager.h"
 #include "pvr/PVRManager.h"
 #include "pvr/channels/PVRChannelGroupsContainer.h"
 #include "pvr/addons/PVRClients.h"
 #include "settings/GUISettings.h"
-#include "settings/Settings.h"
 #include "storage/MediaManager.h"
 
 #define BUTTON_OK                 4
@@ -299,7 +300,7 @@ bool CGUIDialogPVRChannelManager::OnClickButtonChannelLogo(CGUIMessage &message)
   CFileItemPtr pItem = m_channelItems->Get(m_iSelected);
   if (!pItem)
     return false;
-  if (g_settings.GetCurrentProfile().canWriteSources() && !g_passwordManager.IsProfileLockUnlocked())
+  if (CProfilesManager::Get().GetCurrentProfile().canWriteSources() && !g_passwordManager.IsProfileLockUnlocked())
     return false;
   else if (!g_passwordManager.IsMasterLockUnlocked(true))
     return false;

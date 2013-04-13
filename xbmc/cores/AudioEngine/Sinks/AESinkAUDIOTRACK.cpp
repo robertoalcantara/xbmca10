@@ -1,5 +1,5 @@
  /*
- *      Copyright (C) 2010-2012 Team XBMC
+ *      Copyright (C) 2010-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@
 #if defined(__ARM_NEON__)
 #include <arm_neon.h>
 #include "utils/CPUInfo.h"
+#include "android/activity/JNIThreading.h"
+
 // LGPLv2 from PulseAudio
 // float values from AE are pre-clamped so we do not need to clamp again here
 static void pa_sconv_s16le_from_f32ne_neon(unsigned n, const float32_t *a, int16_t *b)
@@ -68,10 +70,19 @@ static jint GetStaticIntField(JNIEnv *jenv, std::string class_name, std::string 
 CAEDeviceInfo CAESinkAUDIOTRACK::m_info;
 ////////////////////////////////////////////////////////////////////////////////////////////
 CAESinkAUDIOTRACK::CAESinkAUDIOTRACK()
-  : CThread("audiotrack")
+  : CThread("AudioTrack")
 {
   m_sinkbuffer = NULL;
   m_alignedS16LE = NULL;
+  m_volume_changed = false;
+  m_min_frames = 0;
+  m_sink_frameSize = 0;
+  m_sinkbuffer_sec = 0.0;
+  m_sinkbuffer_sec_per_byte = 0.0;
+  m_draining = false;
+  m_audiotrackbuffer_sec = 0.0;
+  m_audiotrack_empty_sec = 0.0;
+  m_volume = 0.0;
 #if defined(HAS_AMLPLAYER)
   aml_cpufreq_limit(true);
 #endif
@@ -149,7 +160,7 @@ void CAESinkAUDIOTRACK::Deinitialize()
     _aligned_free(m_alignedS16LE), m_alignedS16LE = NULL;
 }
 
-bool CAESinkAUDIOTRACK::IsCompatible(const AEAudioFormat format, const std::string device)
+bool CAESinkAUDIOTRACK::IsCompatible(const AEAudioFormat format, const std::string &device)
 {
   return ((m_format.m_sampleRate    == format.m_sampleRate) &&
           (m_format.m_dataFormat    == format.m_dataFormat) &&
@@ -228,13 +239,15 @@ bool CAESinkAUDIOTRACK::HasVolume()
   return true;
 }
 
-void  CAESinkAUDIOTRACK::SetVolume(float volume)
+void  CAESinkAUDIOTRACK::SetVolume(float scale)
 {
-  m_volume = volume;
+  // Android uses fixed steps, reverse scale back to percent
+  float gain = CAEUtil::ScaleToGain(scale);
+  m_volume = CAEUtil::GainToPercent(gain);
   m_volume_changed = true;
 }
 
-void CAESinkAUDIOTRACK::EnumerateDevicesEx(AEDeviceInfoList &list)
+void CAESinkAUDIOTRACK::EnumerateDevicesEx(AEDeviceInfoList &list, bool force)
 {
   m_info.m_channels.Reset();
   m_info.m_dataFormats.clear();
@@ -261,8 +274,7 @@ void CAESinkAUDIOTRACK::Process()
 {
   CLog::Log(LOGDEBUG, "CAESinkAUDIOTRACK::Process");
 
-  JNIEnv *jenv = NULL;
-  CXBMCApp::AttachCurrentThread(&jenv, NULL);
+  JNIEnv *jenv = xbmc_jnienv();
 
   jclass jcAudioTrack = jenv->FindClass("android/media/AudioTrack");
 
@@ -273,7 +285,6 @@ void CAESinkAUDIOTRACK::Process()
   jmethodID jmRelease           = jenv->GetMethodID(jcAudioTrack, "release", "()V");
   jmethodID jmWrite             = jenv->GetMethodID(jcAudioTrack, "write", "([BII)I");
   jmethodID jmPlayState         = jenv->GetMethodID(jcAudioTrack, "getPlayState", "()I");
-  jmethodID jmSetStereoVolume   = jenv->GetMethodID(jcAudioTrack, "setStereoVolume", "(FF)I");
   jmethodID jmPlayHeadPosition  = jenv->GetMethodID(jcAudioTrack, "getPlaybackHeadPosition", "()I");
   jmethodID jmGetMinBufferSize  = jenv->GetStaticMethodID(jcAudioTrack, "getMinBufferSize", "(III)I");
 
@@ -322,8 +333,7 @@ void CAESinkAUDIOTRACK::Process()
     {
       // check of volume changes and make them,
       // do it here to keep jni calls local to this thread.
-      jfloat jvolume = m_volume;
-      jenv->CallIntMethod(joAudioTrack, jmSetStereoVolume, jvolume, jvolume);
+      CXBMCApp::SetSystemVolume(jenv, m_volume);
       m_volume_changed = false;
     }
     if (m_draining)
@@ -397,6 +407,4 @@ void CAESinkAUDIOTRACK::Process()
   jenv->DeleteLocalRef(jbuffer);
   jenv->DeleteLocalRef(joAudioTrack);
   jenv->DeleteLocalRef(jcAudioTrack);
-
-  CXBMCApp::DetachCurrentThread();
 }

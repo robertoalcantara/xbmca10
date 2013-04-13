@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ using namespace std;
 #define SEEKTIMOUT 30000
 
 #ifdef HAS_FILESYSTEM_RAR
-CRarFileExtractThread::CRarFileExtractThread() : CThread("CFileRarExtractThread"), hRunning(true), hQuit(true)
+CRarFileExtractThread::CRarFileExtractThread() : CThread("RarFileExtract"), hRunning(true), hQuit(true)
 {
   m_pArc = NULL;
   m_pCmd = NULL;

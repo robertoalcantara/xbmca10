@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -126,6 +126,8 @@ enum CONTEXT_BUTTON { CONTEXT_BUTTON_CANCELLED = 0,
                       CONTEXT_BUTTON_RECORD_ITEM,
                       CONTEXT_BUTTON_TAGS_ADD_ITEMS,
                       CONTEXT_BUTTON_TAGS_REMOVE_ITEMS,
+                      CONTEXT_BUTTON_SET_MOVIESET,
+                      CONTEXT_BUTTON_MOVIESET_ADD_REMOVE_ITEMS,
                       CONTEXT_BUTTON_USER1,
                       CONTEXT_BUTTON_USER2,
                       CONTEXT_BUTTON_USER3,

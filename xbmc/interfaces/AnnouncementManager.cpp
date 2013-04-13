@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -137,7 +137,10 @@ void CAnnouncementManager::Announce(AnnouncementFlag flag, const char *sender, c
       // TODO: Can be removed once this is properly handled when starting playback of a file
       item->SetProperty(LOOKUP_PROPERTY, false);
 
-      object["item"]["title"] = item->GetVideoInfoTag()->m_strTitle;
+      CStdString title = item->GetVideoInfoTag()->m_strTitle;
+      if (title.IsEmpty())
+        title = item->GetLabel();
+      object["item"]["title"] = title;
 
       switch (item->GetVideoContentType())
       {
@@ -190,7 +193,10 @@ void CAnnouncementManager::Announce(AnnouncementFlag flag, const char *sender, c
       // TODO: Can be removed once this is properly handled when starting playback of a file
       item->SetProperty(LOOKUP_PROPERTY, false);
 
-      object["item"]["title"] = item->GetMusicInfoTag()->GetTitle();
+      CStdString title = item->GetMusicInfoTag()->GetTitle();
+      if (title.IsEmpty())
+        title = item->GetLabel();
+      object["item"]["title"] = title;
 
       if (item->GetMusicInfoTag()->GetTrackNumber() > 0)
         object["item"]["track"] = item->GetMusicInfoTag()->GetTrackNumber();
@@ -199,6 +205,12 @@ void CAnnouncementManager::Announce(AnnouncementFlag flag, const char *sender, c
       if (!item->GetMusicInfoTag()->GetArtist().empty())
         object["item"]["artist"] = item->GetMusicInfoTag()->GetArtist();
     }
+  }
+  else if (item->IsVideo())
+  {
+    // video item but has no video info tag.
+    type = "movies";
+    object["item"]["title"] = item->GetLabel();
   }
   else if (item->HasPictureInfoTag())
   {

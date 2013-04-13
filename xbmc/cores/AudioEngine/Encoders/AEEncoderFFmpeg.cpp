@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2010-2012 Team XBMC
+ *      Copyright (C) 2010-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -29,7 +29,13 @@
 #include <string.h>
 
 CAEEncoderFFmpeg::CAEEncoderFFmpeg():
-  m_CodecCtx(NULL)
+  m_BitRate       (0    ),
+  m_CodecCtx      (NULL ),
+  m_BufferSize    (0    ),
+  m_OutputSize    (0    ),
+  m_OutputRatio   (0.0  ),
+  m_SampleRateMul (0.0  ),
+  m_NeededFrames  (0    )
 {
 }
 

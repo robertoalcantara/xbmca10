@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -29,10 +29,10 @@ public:
   typedef std::map<std::string, CVariant> UrlOptions;
 
   CUrlOptions();
-  CUrlOptions(const std::string &options);
+  CUrlOptions(const std::string &options, const char *strLead = "");
   virtual ~CUrlOptions();
 
-  virtual void Clear() { m_options.clear(); }
+  virtual void Clear() { m_options.clear(); m_strLead = ""; }
 
   virtual const UrlOptions& GetOptions() const { return m_options; }
   virtual std::string GetOptionsString(bool withLeadingSeperator = false) const;

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@
 #include "video/VideoInfoScanner.h"
 #include "ApplicationMessenger.h"
 #include "video/VideoInfoTag.h"
+#include "guilib/GUIKeyboardFactory.h"
 #include "guilib/GUIWindowManager.h"
 #include "dialogs/GUIDialogOK.h"
 #include "dialogs/GUIDialogYesNo.h"
@@ -38,9 +39,11 @@
 #include "FileItem.h"
 #include "storage/MediaManager.h"
 #include "utils/AsyncFileCopy.h"
-#include "settings/Settings.h"
+#include "profiles/ProfilesManager.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/GUISettings.h"
+#include "settings/MediaSourceSettings.h"
+#include "guilib/Key.h"
 #include "guilib/LocalizeStrings.h"
 #include "GUIUserMessages.h"
 #include "TextureCache.h"
@@ -206,12 +209,12 @@ void CGUIDialogVideoInfo::OnInitWindow()
     database.Close();
   }
 
-  CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_REFRESH, (g_settings.GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) && !m_movieItem->GetVideoInfoTag()->m_strIMDBNumber.Left(2).Equals("xx") && scraper);
-  CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_GET_THUMB, (g_settings.GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) && !m_movieItem->GetVideoInfoTag()->m_strIMDBNumber.Mid(2).Equals("plugin"));
+  CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_REFRESH, (CProfilesManager::Get().GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) && !m_movieItem->GetVideoInfoTag()->m_strIMDBNumber.Left(2).Equals("xx") && scraper);
+  CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_GET_THUMB, (CProfilesManager::Get().GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) && !m_movieItem->GetVideoInfoTag()->m_strIMDBNumber.Mid(2).Equals("plugin"));
 
   VIDEODB_CONTENT_TYPE type = (VIDEODB_CONTENT_TYPE)m_movieItem->GetVideoContentType();
   if (type == VIDEODB_CONTENT_TVSHOWS || type == VIDEODB_CONTENT_MOVIES)
-    CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_GET_FANART, (g_settings.GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) && !m_movieItem->GetVideoInfoTag()->m_strIMDBNumber.Mid(2).Equals("plugin"));
+    CONTROL_ENABLE_ON_CONDITION(CONTROL_BTN_GET_FANART, (CProfilesManager::Get().GetCurrentProfile().canWriteDatabases() || g_passwordManager.bMasterUser) && !m_movieItem->GetVideoInfoTag()->m_strIMDBNumber.Mid(2).Equals("plugin"));
   else
     CONTROL_DISABLE(CONTROL_BTN_GET_FANART);
 
@@ -567,7 +570,7 @@ void CGUIDialogVideoInfo::Play(bool resume)
   if (!m_movieItem->GetVideoInfoTag()->m_strEpisodeGuide.IsEmpty())
   {
     CStdString strPath;
-    strPath.Format("videodb://2/2/%i/",m_movieItem->GetVideoInfoTag()->m_iDbId);
+    strPath.Format("videodb://tvshows/titles/%i/",m_movieItem->GetVideoInfoTag()->m_iDbId);
     Close();
     g_windowManager.ActivateWindow(WINDOW_VIDEO_NAV,strPath);
     return;
@@ -604,6 +607,7 @@ string CGUIDialogVideoInfo::ChooseArtType(const CFileItem &videoItem, map<string
   dialog->SetHeading(13511);
   dialog->Reset();
   dialog->SetUseDetails(true);
+  dialog->EnableButton(true, 13516);
 
   CVideoDatabase db;
   db.Open();
@@ -616,6 +620,15 @@ string CGUIDialogVideoInfo::ChooseArtType(const CFileItem &videoItem, map<string
   {
     if (!i->second.empty() && find(artTypes.begin(), artTypes.end(), i->first) == artTypes.end())
       artTypes.push_back(i->first);
+  }
+
+  // add any art types that exist for other media items of the same type
+  vector<string> dbArtTypes;
+  db.GetArtTypes(videoItem.GetVideoInfoTag()->m_type, dbArtTypes);
+  for (vector<string>::const_iterator it = dbArtTypes.begin(); it != dbArtTypes.end(); it++)
+  {
+    if (find(artTypes.begin(), artTypes.end(), *it) == artTypes.end())
+      artTypes.push_back(*it);
   }
 
   for (vector<string>::const_iterator i = artTypes.begin(); i != artTypes.end(); ++i)
@@ -631,6 +644,16 @@ string CGUIDialogVideoInfo::ChooseArtType(const CFileItem &videoItem, map<string
   dialog->SetItems(&items);
   dialog->DoModal();
 
+  if (dialog->IsButtonPressed())
+  {
+    // Get the new artwork name
+    CStdString strArtworkName;
+    if (!CGUIKeyboardFactory::ShowAndGetInput(strArtworkName, g_localizeStrings.Get(13516), false))
+      return "";
+
+    return strArtworkName;
+  }
+
   return dialog->GetSelectedItem()->GetLabel();
 }
 
@@ -641,109 +664,111 @@ void CGUIDialogVideoInfo::OnGetArt()
   if (type.empty())
     return; // cancelled
 
+  // TODO: this can be removed once these are unified.
   if (type == "fanart")
-  { // TODO: this can be removed once these are unified.
     OnGetFanart();
-    return;
-  }
-
-  CFileItemList items;
-
-  // Current thumb
-  if (m_movieItem->HasArt(type))
-  {
-    CFileItemPtr item(new CFileItem("thumb://Current", false));
-    item->SetArt("thumb", m_movieItem->GetArt(type));
-    item->SetLabel(g_localizeStrings.Get(13512));
-    items.Add(item);
-  }
-  else if ((type == "poster" || type == "banner") && currentArt.find("thumb") != currentArt.end())
-  { // add the 'thumb' type in
-    CFileItemPtr item(new CFileItem("thumb://Thumb", false));
-    item->SetArt("thumb", currentArt["thumb"]);
-    item->SetLabel(g_localizeStrings.Get(13512));
-    items.Add(item);
-  }
-
-  // Grab the thumbnails from the web
-  vector<CStdString> thumbs;
-  int season = (m_movieItem->GetVideoInfoTag()->m_type == "season") ? m_movieItem->GetVideoInfoTag()->m_iSeason : -1;
-  m_movieItem->GetVideoInfoTag()->m_strPictureURL.GetThumbURLs(thumbs, type, season);
-
-  for (unsigned int i = 0; i < thumbs.size(); ++i)
-  {
-    CStdString strItemPath;
-    strItemPath.Format("thumb://Remote%i", i);
-    CFileItemPtr item(new CFileItem(strItemPath, false));
-    item->SetArt("thumb", thumbs[i]);
-    item->SetIconImage("DefaultPicture.png");
-    item->SetLabel(g_localizeStrings.Get(13513));
-
-    // TODO: Do we need to clear the cached image?
-    //    CTextureCache::Get().ClearCachedImage(thumb);
-    items.Add(item);
-  }
-
-  CStdString localThumb = CVideoThumbLoader::GetLocalArt(*m_movieItem, type);
-  if (!localThumb.empty())
-  {
-    CFileItemPtr item(new CFileItem("thumb://Local", false));
-    item->SetArt("thumb", localThumb);
-    item->SetLabel(g_localizeStrings.Get(13514));
-    items.Add(item);
-  }
   else
-  { // no local thumb exists, so we are just using the IMDb thumb or cached thumb
-    // which is probably the IMDb thumb.  These could be wrong, so allow the user
-    // to delete the incorrect thumb
-    CFileItemPtr item(new CFileItem("thumb://None", false));
-    item->SetIconImage("DefaultVideo.png");
-    item->SetLabel(g_localizeStrings.Get(13515));
-    items.Add(item);
-  }
-
-  CStdString result;
-  VECSOURCES sources(g_settings.m_videoSources);
-  AddItemPathToFileBrowserSources(sources, *m_movieItem);
-  g_mediaManager.GetLocalDrives(sources);
-  if (!CGUIDialogFileBrowser::ShowAndGetImage(items, sources, g_localizeStrings.Get(13511), result))
-    return;   // user cancelled
-
-  if (result == "thumb://Current")
-    return;   // user chose the one they have
-
-  CStdString newThumb;
-  if (result.Left(14) == "thumb://Remote")
   {
-    int number = atoi(result.Mid(14));
-    newThumb = thumbs[number];
-  }
-  else if (result == "thumb://Thumb")
-    newThumb = currentArt["thumb"];
-  else if (result == "thumb://Local")
-    newThumb = localThumb;
-  else if (CFile::Exists(result))
-    newThumb = result;
-  else // none
-    newThumb.clear();
+    CFileItemList items;
 
-  // update thumb in the database
-  CVideoDatabase db;
-  if (db.Open())
-  {
-    db.SetArtForItem(m_movieItem->GetVideoInfoTag()->m_iDbId, m_movieItem->GetVideoInfoTag()->m_type, type, newThumb);
-    db.Close();
+    // Current thumb
+    if (m_movieItem->HasArt(type))
+    {
+      CFileItemPtr item(new CFileItem("thumb://Current", false));
+      item->SetArt("thumb", m_movieItem->GetArt(type));
+      item->SetLabel(g_localizeStrings.Get(13512));
+      items.Add(item);
+    }
+    else if ((type == "poster" || type == "banner") && currentArt.find("thumb") != currentArt.end())
+    { // add the 'thumb' type in
+      CFileItemPtr item(new CFileItem("thumb://Thumb", false));
+      item->SetArt("thumb", currentArt["thumb"]);
+      item->SetLabel(g_localizeStrings.Get(13512));
+      items.Add(item);
+    }
+
+    // Grab the thumbnails from the web
+    vector<CStdString> thumbs;
+    int season = (m_movieItem->GetVideoInfoTag()->m_type == "season") ? m_movieItem->GetVideoInfoTag()->m_iSeason : -1;
+    m_movieItem->GetVideoInfoTag()->m_strPictureURL.GetThumbURLs(thumbs, type, season);
+
+    for (unsigned int i = 0; i < thumbs.size(); ++i)
+    {
+      CStdString strItemPath;
+      strItemPath.Format("thumb://Remote%i", i);
+      CFileItemPtr item(new CFileItem(strItemPath, false));
+      item->SetArt("thumb", thumbs[i]);
+      item->SetIconImage("DefaultPicture.png");
+      item->SetLabel(g_localizeStrings.Get(13513));
+
+      // TODO: Do we need to clear the cached image?
+      //    CTextureCache::Get().ClearCachedImage(thumb);
+      items.Add(item);
+    }
+
+    CStdString localThumb = CVideoThumbLoader::GetLocalArt(*m_movieItem, type);
+    if (!localThumb.empty())
+    {
+      CFileItemPtr item(new CFileItem("thumb://Local", false));
+      item->SetArt("thumb", localThumb);
+      item->SetLabel(g_localizeStrings.Get(13514));
+      items.Add(item);
+    }
+    else
+    { // no local thumb exists, so we are just using the IMDb thumb or cached thumb
+      // which is probably the IMDb thumb.  These could be wrong, so allow the user
+      // to delete the incorrect thumb
+      CFileItemPtr item(new CFileItem("thumb://None", false));
+      item->SetIconImage("DefaultVideo.png");
+      item->SetLabel(g_localizeStrings.Get(13515));
+      items.Add(item);
+    }
+
+    CStdString result;
+    VECSOURCES sources(*CMediaSourceSettings::Get().GetSources("video"));
+    AddItemPathToFileBrowserSources(sources, *m_movieItem);
+    g_mediaManager.GetLocalDrives(sources);
+    if (CGUIDialogFileBrowser::ShowAndGetImage(items, sources, g_localizeStrings.Get(13511), result) &&
+        result != "thumb://Current") // user didn't choose the one they have
+    {
+      CStdString newThumb;
+      if (result.Left(14) == "thumb://Remote")
+      {
+        int number = atoi(result.Mid(14));
+        newThumb = thumbs[number];
+      }
+      else if (result == "thumb://Thumb")
+        newThumb = currentArt["thumb"];
+      else if (result == "thumb://Local")
+        newThumb = localThumb;
+      else if (CFile::Exists(result))
+        newThumb = result;
+      else // none
+        newThumb.clear();
+
+      // update thumb in the database
+      CVideoDatabase db;
+      if (db.Open())
+      {
+        db.SetArtForItem(m_movieItem->GetVideoInfoTag()->m_iDbId, m_movieItem->GetVideoInfoTag()->m_type, type, newThumb);
+        db.Close();
+      }
+      CUtil::DeleteVideoDatabaseDirectoryCache(); // to get them new thumbs to show
+      m_movieItem->SetArt(type, newThumb);
+      if (m_movieItem->HasProperty("set_folder_thumb"))
+      { // have a folder thumb to set as well
+        VIDEO::CVideoInfoScanner::ApplyThumbToFolder(m_movieItem->GetProperty("set_folder_thumb").asString(), newThumb);
+      }
+      m_hasUpdatedThumb = true;
+    }
   }
-  CUtil::DeleteVideoDatabaseDirectoryCache(); // to get them new thumbs to show
-  m_movieItem->SetArt(type, newThumb);
-  if (m_movieItem->HasProperty("set_folder_thumb"))
-  { // have a folder thumb to set as well
-    VIDEO::CVideoInfoScanner::ApplyThumbToFolder(m_movieItem->GetProperty("set_folder_thumb").asString(), newThumb);
-  }
-  m_hasUpdatedThumb = true;
 
   // Update our screen
   Update();
+
+  // re-open the art selection dialog as we come back from
+  // the image selection dialog
+  OnGetArt();
 }
 
 // Allow user to select a Fanart
@@ -799,7 +824,7 @@ void CGUIDialogVideoInfo::OnGetFanart()
   }
 
   CStdString result;
-  VECSOURCES sources(g_settings.m_videoSources);
+  VECSOURCES sources(*CMediaSourceSettings::Get().GetSources("video"));
   AddItemPathToFileBrowserSources(sources, item);
   g_mediaManager.GetLocalDrives(sources);
   bool flip=false;

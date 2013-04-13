@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -22,6 +22,9 @@
 #include "GUIVideoControl.h"
 #include "GUIWindowManager.h"
 #include "Application.h"
+#include "Key.h"
+#include "WindowIDs.h"
+#include "cores/IPlayer.h"
 #ifdef HAS_VIDEO_PLAYBACK
 #include "cores/VideoRenderers/RenderManager.h"
 #else

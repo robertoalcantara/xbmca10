@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 #include "Util.h"
 #include "video/VideoInfoTag.h"
 #include "music/tags/MusicInfoTag.h"
+#include "pictures/PictureInfoTag.h"
 #include "FileItem.h"
 #include "StringUtils.h"
 #include "URIUtils.h"
@@ -95,9 +96,11 @@ using namespace MUSIC_INFO;
  *  %Y - Year
  *  %Z - tvshow title
  *  %a - Date Added
+ *  %p - Last Played
+ *  *t - Date Taken (suitable for Pictures)
  */
 
-#define MASK_CHARS "NSATBGYFLDIJRCKMEPHZOQUVXWa"
+#define MASK_CHARS "NSATBGYFLDIJRCKMEPHZOQUVXWapt"
 
 CLabelFormatter::CLabelFormatter(const CStdString &mask, const CStdString &mask2)
 {
@@ -149,6 +152,7 @@ CStdString CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFileI
   if (!item) return "";
   const CMusicInfoTag *music = item->GetMusicInfoTag();
   const CVideoInfoTag *movie = item->GetVideoInfoTag();
+  const CPictureInfoTag *pic = item->GetPictureInfoTag();
   CStdString value;
   switch (mask.m_content)
   {
@@ -306,6 +310,14 @@ CStdString CLabelFormatter::GetMaskContent(const CMaskString &mask, const CFileI
   case 'a': // Date Added
     if (movie && movie->m_dateAdded.IsValid())
       value = movie->m_dateAdded.GetAsLocalizedDate();
+    break;
+  case 'p': // Last played
+    if (movie && movie->m_lastPlayed.IsValid())
+      value = movie->m_lastPlayed.GetAsLocalizedDate();
+    break;
+  case 't': // Date Taken
+    if (pic && pic->GetDateTimeTaken().IsValid())
+      value = pic->GetDateTimeTaken().GetAsLocalizedDate();
     break;
   }
   if (!value.IsEmpty())

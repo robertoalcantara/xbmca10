@@ -2,11 +2,11 @@
 <!-- BEGIN_INCLUDE(manifest) -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.xbmc.xbmc"
-    android:versionCode="6"
-    android:versionName="12.0" >
+    android:versionCode="9"
+    android:versionName="13.0-ALPHA3" >
 
     <!-- This is the platform API where NativeActivity was introduced. -->
-    <uses-sdk android:minSdkVersion="9" />
+    <uses-sdk android:minSdkVersion="14" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -19,7 +19,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:finishOnTaskLaunch="true"
             android:launchMode="singleInstance"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,12 +32,12 @@
              This will take care of integrating with our NDK code.
         -->
         <activity
-            android:name="android.app.NativeActivity"
+            android:name=".Main"
             android:configChanges="orientation|keyboardHidden"
             android:finishOnTaskLaunch="true"
             android:label="XBMC"
             android:launchMode="singleInstance"
-            android:screenOrientation="landscape"
+            android:screenOrientation="sensorLandscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
 
             <!-- Tell NativeActivity the name of or .so -->
@@ -45,6 +45,12 @@
                 android:name="android.app.lib_name"
                 android:value="xbmc" />
         </activity>
+        <receiver android:name="XBMCBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <data android:scheme="file"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest><!-- END_INCLUDE(manifest) -->

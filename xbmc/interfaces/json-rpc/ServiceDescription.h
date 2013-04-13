@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 namespace JSONRPC
 {
   const char* const JSONRPC_SERVICE_ID          = "http://www.xbmc.org/jsonrpc/ServiceDescription.json";
-  const char* const JSONRPC_SERVICE_VERSION     = "6.0.0";
+  const char* const JSONRPC_SERVICE_VERSION     = "6.3.0";
   const char* const JSONRPC_SERVICE_DESCRIPTION = "JSON-RPC API of XBMC";
 
   const char* const JSONRPC_SERVICE_TYPES[] = {  
@@ -174,7 +174,7 @@ namespace JSONRPC
     "\"Playlist.Item\": {"
       "\"type\": ["
         "{ \"type\": \"object\", \"properties\": { \"file\": { \"type\": \"string\", \"description\": \"Path to a file (not a directory) to be added to the playlist\", \"required\": true } }, \"additionalProperties\": false },"
-        "{ \"type\": \"object\", \"properties\": { \"directory\": { \"type\": \"string\", \"required\": true } }, \"additionalProperties\": false },"
+        "{ \"type\": \"object\", \"properties\": { \"directory\": { \"type\": \"string\", \"required\": true }, \"recursive\": { \"type\": \"boolean\", \"default\": false } }, \"additionalProperties\": false },"
         "{ \"type\": \"object\", \"properties\": { \"movieid\": { \"$ref\": \"Library.Id\", \"required\": true } }, \"additionalProperties\": false },"
         "{ \"type\": \"object\", \"properties\": { \"episodeid\": { \"$ref\": \"Library.Id\", \"required\": true } }, \"additionalProperties\": false },"
         "{ \"type\": \"object\", \"properties\": { \"musicvideoid\": { \"$ref\": \"Library.Id\", \"required\": true } }, \"additionalProperties\": false },"
@@ -225,12 +225,7 @@ namespace JSONRPC
       "\"properties\": {"
         "\"index\": { \"type\": \"integer\", \"minimum\": 0, \"required\": true },"
         "\"name\": { \"type\": \"string\", \"required\": true },"
-        "\"language\": { \"type\": \"string\", \"required\": true }"
-      "}"
-    "}",
-    "\"Player.Audio.Stream.Extended\": {"
-      "\"extends\": \"Player.Audio.Stream\","
-      "\"properties\": {"
+        "\"language\": { \"type\": \"string\", \"required\": true },"
         "\"codec\": { \"type\": \"string\", \"required\": true },"
         "\"bitrate\": { \"type\": \"integer\", \"required\": true },"
         "\"channels\": { \"type\": \"integer\", \"required\": true }"
@@ -272,7 +267,7 @@ namespace JSONRPC
         "\"canrotate\": { \"type\": \"boolean\" },"
         "\"canshuffle\": { \"type\": \"boolean\" },"
         "\"canrepeat\": { \"type\": \"boolean\" },"
-        "\"currentaudiostream\": { \"$ref\": \"Player.Audio.Stream.Extended\" },"
+        "\"currentaudiostream\": { \"$ref\": \"Player.Audio.Stream\" },"
         "\"audiostreams\": { \"type\": \"array\", \"items\": { \"$ref\": \"Player.Audio.Stream\" } },"
         "\"subtitleenabled\": { \"type\": \"boolean\" },"
         "\"currentsubtitle\": { \"$ref\": \"Player.Subtitle\" },"
@@ -413,7 +408,7 @@ namespace JSONRPC
         "\"enum\": [ \"instrument\", \"style\", \"mood\", \"born\", \"formed\","
                   "\"description\", \"genre\", \"died\", \"disbanded\","
                   "\"yearsactive\", \"musicbrainzartistid\", \"fanart\","
-                  "\"thumbnail\" ]"
+                  "\"compilationartist\", \"thumbnail\" ]"
       "}"
     "}",
     "\"Audio.Fields.Album\": {"
@@ -474,6 +469,7 @@ namespace JSONRPC
         "\"died\": { \"type\": \"string\" },"
         "\"disbanded\": { \"type\": \"string\" },"
         "\"yearsactive\": { \"$ref\": \"Array.String\" },"
+        "\"compilationartist\": { \"type\": \"boolean\" },"
         "\"musicbrainzartistid\": { \"type\": \"string\" }"
       "}"
     "}",
@@ -1134,7 +1130,8 @@ namespace JSONRPC
                 "\"xbmc.metadata.scraper.musicvideos\", \"xbmc.metadata.scraper.tvshows\", \"xbmc.ui.screensaver\","
                 "\"xbmc.player.musicviz\", \"xbmc.python.pluginsource\", \"xbmc.python.script\", \"xbmc.python.weather\","
                 "\"xbmc.python.subtitles\", \"xbmc.python.lyrics\", \"xbmc.gui.skin\", \"xbmc.gui.webinterface\","
-                "\"xbmc.addon.video\", \"xbmc.addon.audio\", \"xbmc.addon.image\", \"xbmc.addon.executable\", \"xbmc.service\" ],"
+                "\"xbmc.pvrclient\", \"xbmc.addon.video\", \"xbmc.addon.audio\", \"xbmc.addon.image\", \"xbmc.addon.executable\","
+                "\"xbmc.service\" ],"
       "\"default\": \"unknown\""
     "}",
     "\"Addon.Content\": {"
@@ -1793,7 +1790,8 @@ namespace JSONRPC
         "{ \"name\": \"directory\", \"type\": \"string\", \"required\": true },"
         "{ \"name\": \"media\", \"$ref\": \"Files.Media\", \"default\": \"files\" },"
         "{ \"name\": \"properties\", \"$ref\": \"List.Fields.Files\" },"
-        "{ \"name\": \"sort\", \"$ref\": \"List.Sort\" }"
+        "{ \"name\": \"sort\", \"$ref\": \"List.Sort\" },"
+        "{ \"name\": \"limits\", \"$ref\": \"List.Limits\", \"description\": \"Limits are applied after getting the directory content thus retrieval is not faster when they are applied.\" }"
       "],"
       "\"returns\": {"
         "\"type\": \"object\","
@@ -2524,7 +2522,8 @@ namespace JSONRPC
         "{ \"name\": \"thumbnail\", \"$ref\": \"Optional.String\" },"
         "{ \"name\": \"fanart\", \"$ref\": \"Optional.String\" },"
         "{ \"name\": \"tag\", \"type\": [ \"null\", { \"$ref\": \"Array.String\", \"required\": true } ], \"default\": null },"
-        "{ \"name\": \"art\", \"type\": [ \"null\", { \"$ref\": \"Media.Artwork\", \"required\": true } ], \"default\": null }"
+        "{ \"name\": \"art\", \"type\": [ \"null\", { \"$ref\": \"Media.Artwork\", \"required\": true } ], \"default\": null },"
+        "{ \"name\": \"resume\", \"type\": [ \"null\", { \"$ref\": \"Video.Resume\", \"required\": true } ], \"default\": null }"
       "],"
       "\"returns\": \"string\""
     "}",
@@ -2579,7 +2578,8 @@ namespace JSONRPC
         "{ \"name\": \"originaltitle\", \"$ref\": \"Optional.String\" },"
         "{ \"name\": \"thumbnail\", \"$ref\": \"Optional.String\" },"
         "{ \"name\": \"fanart\", \"$ref\": \"Optional.String\" },"
-        "{ \"name\": \"art\", \"type\": [ \"null\", { \"$ref\": \"Media.Artwork\", \"required\": true } ], \"default\": null }"
+        "{ \"name\": \"art\", \"type\": [ \"null\", { \"$ref\": \"Media.Artwork\", \"required\": true } ], \"default\": null },"
+        "{ \"name\": \"resume\", \"type\": [ \"null\", { \"$ref\": \"Video.Resume\", \"required\": true } ], \"default\": null }"
       "],"
       "\"returns\": \"string\""
     "}",
@@ -2605,7 +2605,8 @@ namespace JSONRPC
         "{ \"name\": \"thumbnail\", \"$ref\": \"Optional.String\" },"
         "{ \"name\": \"fanart\", \"$ref\": \"Optional.String\" },"
         "{ \"name\": \"tag\", \"type\": [ \"null\", { \"$ref\": \"Array.String\", \"required\": true } ], \"default\": null },"
-        "{ \"name\": \"art\", \"type\": [ \"null\", { \"$ref\": \"Media.Artwork\", \"required\": true } ], \"default\": null }"
+        "{ \"name\": \"art\", \"type\": [ \"null\", { \"$ref\": \"Media.Artwork\", \"required\": true } ], \"default\": null },"
+        "{ \"name\": \"resume\", \"type\": [ \"null\", { \"$ref\": \"Video.Resume\", \"required\": true } ], \"default\": null }"
       "],"
       "\"returns\": \"string\""
     "}",

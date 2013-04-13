@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 #include "RSSDirectory.h"
 #include "FileItem.h"
 #include "CurlFile.h"
-#include "settings/Settings.h"
 #include "settings/AdvancedSettings.h"
 #include "utils/URIUtils.h"
 #include "utils/XBMCTinyXML.h"
@@ -96,13 +95,13 @@ static bool IsPathToMedia(const CStdString& strPath )
 
   extension.ToLower();
 
-  if (g_settings.m_videoExtensions.Find(extension) != -1)
+  if (g_advancedSettings.m_videoExtensions.Find(extension) != -1)
     return true;
 
-  if (g_settings.m_musicExtensions.Find(extension) != -1)
+  if (g_advancedSettings.m_musicExtensions.Find(extension) != -1)
     return true;
 
-  if (g_settings.m_pictureExtensions.Find(extension) != -1)
+  if (g_advancedSettings.m_pictureExtensions.Find(extension) != -1)
     return true;
 
   return false;
@@ -120,7 +119,7 @@ static bool IsPathToThumbnail(const CStdString& strPath )
 
   extension.ToLower();
 
-  if (g_settings.m_pictureExtensions.Find(extension) != -1)
+  if (g_advancedSettings.m_pictureExtensions.Find(extension) != -1)
     return true;
 
   return false;

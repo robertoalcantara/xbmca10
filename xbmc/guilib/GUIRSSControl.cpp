@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 #include "settings/GUISettings.h"
 #include "threads/CriticalSection.h"
 #include "threads/SingleLock.h"
+#include "utils/RssManager.h"
 #include "utils/RssReader.h"
 #include "utils/StringUtils.h"
 
@@ -40,6 +41,7 @@ CGUIRSSControl::CGUIRSSControl(int parentID, int controlID, float posX, float po
 
   m_pReader = NULL;
   m_rtl = false;
+  m_stopped = false;
   ControlType = GUICONTROL_RSS;
 }
 
@@ -52,6 +54,7 @@ CGUIRSSControl::CGUIRSSControl(const CGUIRSSControl &from)
   m_strRSSTags = from.m_strRSSTags;
   m_pReader = NULL;
   m_rtl = from.m_rtl;
+  m_stopped = from.m_stopped;
   ControlType = GUICONTROL_RSS;
 }
 
@@ -71,6 +74,16 @@ void CGUIRSSControl::SetUrls(const vector<string> &vecUrl, bool rtl)
     m_scrollInfo.pixelSpeed *= -1;
   else if (m_scrollInfo.pixelSpeed < 0 && !rtl)
     m_scrollInfo.pixelSpeed *= -1;
+}
+
+void CGUIRSSControl::OnFocus()
+{
+  m_stopped = true;
+}
+
+void CGUIRSSControl::OnUnFocus()
+{
+  m_stopped = false;
 }
 
 void CGUIRSSControl::SetIntervals(const vector<int>& vecIntervals)
@@ -99,13 +112,13 @@ void CGUIRSSControl::Process(unsigned int currentTime, CDirtyRegionList &dirtyre
 void CGUIRSSControl::Render()
 {
   // only render the control if they are enabled
-  if (g_guiSettings.GetBool("lookandfeel.enablerssfeeds") && g_rssManager.IsActive())
+  if (g_guiSettings.GetBool("lookandfeel.enablerssfeeds") && CRssManager::Get().IsActive())
   {
     CSingleLock lock(m_criticalSection);
     // Create RSS background/worker thread if needed
     if (m_pReader == NULL)
     {
-      if (g_rssManager.GetReader(GetID(), GetParentID(), this, m_pReader))
+      if (CRssManager::Get().GetReader(GetID(), GetParentID(), this, m_pReader))
         m_scrollInfo.characterPos = m_pReader->m_SavedScrollPos;
       else
       {
@@ -130,6 +143,12 @@ void CGUIRSSControl::Render()
       colors.push_back(m_label.textColor);
       colors.push_back(m_headlineColor);
       colors.push_back(m_channelColor);
+
+      if ( m_stopped )
+        m_scrollInfo.SetSpeed(0);
+      else
+        m_scrollInfo.SetSpeed(m_label.scrollSpeed);
+
       m_label.font->DrawScrollingText(m_posX, m_posY, colors, m_label.shadowColor, m_feed, 0, m_width, m_scrollInfo);
     }
 

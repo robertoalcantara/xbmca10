@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -38,7 +38,6 @@
 #include "interfaces/AnnouncementManager.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/GUISettings.h"
-#include "settings/Settings.h"
 #include "utils/StringUtils.h"
 #include "guilib/LocalizeStrings.h"
 #include "guilib/GUIWindowManager.h"
@@ -58,7 +57,7 @@ using namespace ADDON;
 namespace VIDEO
 {
 
-  CVideoInfoScanner::CVideoInfoScanner() : CThread("CVideoInfoScanner")
+  CVideoInfoScanner::CVideoInfoScanner() : CThread("VideoInfoScanner")
   {
     m_bRunning = false;
     m_handle = NULL;
@@ -86,7 +85,8 @@ namespace VIDEO
       {
         CGUIDialogExtendedProgressBar* dialog =
           (CGUIDialogExtendedProgressBar*)g_windowManager.GetWindow(WINDOW_DIALOG_EXT_PROGRESS);
-        m_handle = dialog->GetHandle(g_localizeStrings.Get(314));
+        if (dialog)
+           m_handle = dialog->GetHandle(g_localizeStrings.Get(314));
       }
 
       m_bCanInterrupt = true;
@@ -272,7 +272,7 @@ namespace VIDEO
       }
       if (!bSkip)
       { // need to fetch the folder
-        CDirectory::GetDirectory(strDirectory, items, g_settings.m_videoExtensions);
+        CDirectory::GetDirectory(strDirectory, items, g_advancedSettings.m_videoExtensions);
         items.Stack();
         // compute hash
         GetPathHash(items, hash);
@@ -308,7 +308,7 @@ namespace VIDEO
 
       if (foundDirectly && !settings.parent_name_root)
       {
-        CDirectory::GetDirectory(strDirectory, items, g_settings.m_videoExtensions);
+        CDirectory::GetDirectory(strDirectory, items, g_advancedSettings.m_videoExtensions);
         items.SetPath(strDirectory);
         GetPathHash(items, hash);
         bSkip = true;
@@ -665,7 +665,7 @@ namespace VIDEO
 
     if (item->m_bIsFolder)
     {
-      CUtil::GetRecursiveListing(item->GetPath(), items, g_settings.m_videoExtensions, true);
+      CUtil::GetRecursiveListing(item->GetPath(), items, g_advancedSettings.m_videoExtensions, true);
       CStdString hash, dbHash;
       int numFilesInFolder = GetPathHash(items, hash);
 
@@ -1351,9 +1351,12 @@ namespace VIDEO
       if (result == CNfoFile::FULL_NFO)
       {
         m_nfoReader.GetDetails(*item.GetVideoInfoTag());
-        // override with episode and season number
-        item.GetVideoInfoTag()->m_iEpisode = file->iEpisode;
-        item.GetVideoInfoTag()->m_iSeason = file->iSeason;
+        // override with episode and season number from file if available
+        if (file->iEpisode > -1)
+        {
+          item.GetVideoInfoTag()->m_iEpisode = file->iEpisode;
+          item.GetVideoInfoTag()->m_iSeason = file->iSeason;
+        }
         if (AddVideo(&item, CONTENT_TVSHOWS, file->isFolder, true, &showInfo) < 0)
           return INFO_ERROR;
         continue;
@@ -1770,7 +1773,10 @@ namespace VIDEO
   void CVideoInfoScanner::FetchActorThumbs(vector<SActorInfo>& actors, const CStdString& strPath)
   {
     CFileItemList items;
-    CDirectory::GetDirectory(URIUtils::AddFileToFolder(strPath, ".actors"), items, ".png|.jpg|.tbn", DIR_FLAG_NO_FILE_DIRS | DIR_FLAG_NO_FILE_INFO);
+    CStdString actorsDir = URIUtils::AddFileToFolder(strPath, ".actors");
+    if (CDirectory::Exists(actorsDir))
+      CDirectory::GetDirectory(actorsDir, items, ".png|.jpg|.tbn", DIR_FLAG_NO_FILE_DIRS |
+                               DIR_FLAG_NO_FILE_INFO);
     for (vector<SActorInfo>::iterator i = actors.begin(); i != actors.end(); ++i)
     {
       if (i->thumb.IsEmpty())

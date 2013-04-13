@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 #include "guilib/GUIWindow.h"
 #include "filesystem/VirtualDirectory.h"
 #include "filesystem/DirectoryHistory.h"
-#include "GUIViewControl.h"
+#include "view/GUIViewControl.h"
 #include "dialogs/GUIDialogContextMenu.h"
 #include "playlists/SmartPlayList.h"
 
@@ -103,7 +103,7 @@ protected:
    \return true if the given path can contain a "filter" parameter otherwise false
    */
   virtual bool CanContainFilter(const CStdString &strDirectory) const { return false; }
-  virtual bool Filter();
+  virtual bool Filter(bool advanced = true);
 
   /* \brief Called on response to a GUI_MSG_FILTER_ITEMS message
    Filters the current list with the given filter using FilterItems()

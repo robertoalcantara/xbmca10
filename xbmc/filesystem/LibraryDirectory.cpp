@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2011-2012 Team XBMC
+ *      Copyright (C) 2011-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 #include "LibraryDirectory.h"
 #include "Directory.h"
 #include "playlists/SmartPlayList.h"
+#include "profiles/ProfilesManager.h"
 #include "SmartPlaylistDirectory.h"
 #include "utils/URIUtils.h"
 #include "utils/StringUtils.h"
@@ -29,7 +30,6 @@
 #include "guilib/TextureManager.h"
 #include "FileItem.h"
 #include "File.h"
-#include "settings/Settings.h"
 #include "URL.h"
 #include "GUIInfoManager.h"
 #include "utils/log.h"
@@ -172,7 +172,7 @@ bool CLibraryDirectory::Exists(const char* strPath)
 CStdString CLibraryDirectory::GetNode(const CStdString &path)
 {
   CURL url(path);
-  CStdString libDir = URIUtils::AddFileToFolder(g_settings.GetLibraryFolder(), url.GetHostName() + "/");
+  CStdString libDir = URIUtils::AddFileToFolder(CProfilesManager::Get().GetLibraryFolder(), url.GetHostName() + "/");
   if (!CDirectory::Exists(libDir))
     libDir = URIUtils::AddFileToFolder("special://xbmc/system/library/", url.GetHostName() + "/");
 

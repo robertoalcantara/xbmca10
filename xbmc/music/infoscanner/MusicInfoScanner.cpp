@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -40,7 +40,6 @@
 #include "filesystem/Directory.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/GUISettings.h"
-#include "settings/Settings.h"
 #include "FileItem.h"
 #include "guilib/LocalizeStrings.h"
 #include "utils/StringUtils.h"
@@ -59,7 +58,7 @@ using namespace MUSIC_INFO;
 using namespace XFILE;
 using namespace MUSIC_GRABBER;
 
-CMusicInfoScanner::CMusicInfoScanner() : CThread("CMusicInfoScanner")
+CMusicInfoScanner::CMusicInfoScanner() : CThread("MusicInfoScanner")
 {
   m_bRunning = false;
   m_showDialog = false;
@@ -105,7 +104,7 @@ void CMusicInfoScanner::Process()
 
       // Create the thread to count all files to be scanned
       SetPriority( GetMinPriority() );
-      CThread fileCountReader(this, "CMusicInfoScanner");
+      CThread fileCountReader(this, "MusicFileCounter");
       if (m_handle)
         fileCountReader.Create();
 
@@ -251,7 +250,7 @@ void CMusicInfoScanner::FetchAlbumInfo(const CStdString& strDirectory,
   if (strDirectory.IsEmpty())
   {
     m_musicDatabase.Open();
-    m_musicDatabase.GetAlbumsNav("musicdb://3/", items);
+    m_musicDatabase.GetAlbumsNav("musicdb://albums/", items);
     m_musicDatabase.Close();
   }
   else
@@ -301,7 +300,7 @@ void CMusicInfoScanner::FetchArtistInfo(const CStdString& strDirectory,
   if (strDirectory.IsEmpty())
   {
     m_musicDatabase.Open();
-    m_musicDatabase.GetArtistsNav("musicdb://2/", items, false, -1);
+    m_musicDatabase.GetArtistsNav("musicdb://artists/", items, false, -1);
     m_musicDatabase.Close();
   }
   else
@@ -392,7 +391,7 @@ bool CMusicInfoScanner::DoScan(const CStdString& strDirectory)
 
   // load subfolder
   CFileItemList items;
-  CDirectory::GetDirectory(strDirectory, items, g_settings.m_musicExtensions + "|.jpg|.tbn|.lrc|.cdg");
+  CDirectory::GetDirectory(strDirectory, items, g_advancedSettings.m_musicExtensions + "|.jpg|.tbn|.lrc|.cdg");
 
   // sort and get the path hash.  Note that we don't filter .cue sheet items here as we want
   // to detect changes in the .cue sheet as well.  The .cue sheet items only need filtering
@@ -459,27 +458,17 @@ bool CMusicInfoScanner::DoScan(const CStdString& strDirectory)
   return !m_bStop;
 }
 
-int CMusicInfoScanner::RetrieveMusicInfo(CFileItemList& items, const CStdString& strDirectory)
+INFO_RET CMusicInfoScanner::ScanTags(const CFileItemList& items, CFileItemList& scannedItems)
 {
-  CSongMap songsMap;
-
-  // get all information for all files in current directory from database, and remove them
-  if (m_musicDatabase.RemoveSongsFromPath(strDirectory, songsMap))
-    m_needsCleanup = true;
-
-  VECSONGS songsToAdd;
-
   CStdStringArray regexps = g_advancedSettings.m_audioExcludeFromScanRegExps;
 
   // for every file found, but skip folder
   for (int i = 0; i < items.Size(); ++i)
   {
     CFileItemPtr pItem = items[i];
-    CStdString strExtension;
-    URIUtils::GetExtension(pItem->GetPath(), strExtension);
 
     if (m_bStop)
-      return 0;
+      return INFO_CANCELLED;
 
     // Discard all excluded files defined by m_musicExcludeRegExps
     if (CUtil::ExcludeFileOrFolder(pItem->GetPath(), regexps))
@@ -489,14 +478,11 @@ int CMusicInfoScanner::RetrieveMusicInfo(CFileItemList& items, const CStdString&
     if (!pItem->m_bIsFolder && !pItem->IsPlayList() && !pItem->IsPicture() && !pItem->IsLyrics() )
     {
       m_currentItem++;
-//      CLog::Log(LOGDEBUG, "%s - Reading tag for: %s", __FUNCTION__, pItem->GetPath().c_str());
-
-      // grab info from the song
-      CSong *dbSong = songsMap.Find(pItem->GetPath());
 
       CMusicInfoTag& tag = *pItem->GetMusicInfoTag();
-      if (!tag.Loaded() )
-      { // read the tag from a file
+      if (!tag.Loaded())
+      {
+        // read the tag from a file
         auto_ptr<IMusicInfoTagLoader> pLoader (CMusicInfoTagLoaderFactory::CreateLoader(pItem->GetPath()));
         if (NULL != pLoader.get())
           pLoader->Load(pItem->GetPath(), tag);
@@ -508,43 +494,67 @@ int CMusicInfoScanner::RetrieveMusicInfo(CFileItemList& items, const CStdString&
         m_handle->SetPercentage(m_currentItem/(float)m_itemCount*100);
 
       if (tag.Loaded())
-      {
-        CSong song(tag);
-
-        // ensure our song has a valid filename or else it will assert in AddSong()
-        if (song.strFileName.IsEmpty())
-        {
-          // copy filename from path in case UPnP or other tag loaders didn't specify one (FIXME?)
-          song.strFileName = pItem->GetPath();
-
-          // if we still don't have a valid filename, skip the song
-          if (song.strFileName.IsEmpty())
-          {
-            // this shouldn't ideally happen!
-            CLog::Log(LOGERROR, "Skipping song since it doesn't seem to have a filename");
-            continue;
-          }
-        }
-
-        song.iStartOffset = pItem->m_lStartOffset;
-        song.iEndOffset = pItem->m_lEndOffset;
-        song.strThumb = pItem->GetUserMusicThumb(true);
-        if (dbSong)
-        { // keep the db-only fields intact on rescan...
-          song.iTimesPlayed = dbSong->iTimesPlayed;
-          song.lastPlayed = dbSong->lastPlayed;
-          song.iKaraokeNumber = dbSong->iKaraokeNumber;
-
-          if (song.rating == '0') song.rating = dbSong->rating;
-          if (song.strThumb.empty())
-            song.strThumb = dbSong->strThumb;
-        }
-        songsToAdd.push_back(song);
-//        CLog::Log(LOGDEBUG, "%s - Tag loaded for: %s", __FUNCTION__, pItem->GetPath().c_str());
-      }
+        scannedItems.Add(pItem);
       else
         CLog::Log(LOGDEBUG, "%s - No tag found for: %s", __FUNCTION__, pItem->GetPath().c_str());
     }
+  }
+  return INFO_ADDED;
+}
+
+int CMusicInfoScanner::RetrieveMusicInfo(CFileItemList& items, const CStdString& strDirectory)
+{
+  MAPSONGS songsMap;
+
+  // get all information for all files in current directory from database, and remove them
+  if (m_musicDatabase.RemoveSongsFromPath(strDirectory, songsMap))
+    m_needsCleanup = true;
+
+  CFileItemList scannedItems;
+  if (ScanTags(items, scannedItems) == INFO_CANCELLED)
+    return 0;
+
+  VECSONGS songsToAdd;
+  for (int i = 0; i < scannedItems.Size(); ++i)
+  {
+    CFileItemPtr pItem = scannedItems[i];
+    CMusicInfoTag& tag = *pItem->GetMusicInfoTag();
+    CSong song(tag);
+
+    // ensure our song has a valid filename or else it will assert in AddSong()
+    if (song.strFileName.IsEmpty())
+    {
+      // copy filename from path in case UPnP or other tag loaders didn't specify one (FIXME?)
+      song.strFileName = pItem->GetPath();
+
+      // if we still don't have a valid filename, skip the song
+      if (song.strFileName.IsEmpty())
+      {
+        // this shouldn't ideally happen!
+        CLog::Log(LOGERROR, "Skipping song since it doesn't seem to have a filename");
+        continue;
+      }
+    }
+
+    song.iStartOffset = pItem->m_lStartOffset;
+    song.iEndOffset = pItem->m_lEndOffset;
+    song.strThumb = pItem->GetUserMusicThumb(true);
+
+    // grab info from the song
+    MAPSONGS::iterator it = songsMap.find(pItem->GetPath());
+    if (it != songsMap.end())
+    {
+      // keep the db-only fields intact on rescan...
+      song.iTimesPlayed = it->second.iTimesPlayed;
+      song.lastPlayed = it->second.lastPlayed;
+      song.iKaraokeNumber = it->second.iKaraokeNumber;
+
+      if (song.rating == '0')
+        song.rating = it->second.rating;
+      if (song.strThumb.empty())
+        song.strThumb = it->second.strThumb;
+    }
+    songsToAdd.push_back(song);
   }
 
   VECALBUMS albums;
@@ -593,7 +603,7 @@ int CMusicInfoScanner::RetrieveMusicInfo(CFileItemList& items, const CStdString&
       if (!m_bStop && (m_flags & SCAN_ONLINE))
       {
         CStdString strPath;
-        strPath.Format("musicdb://2/%u/", *it);
+        strPath.Format("musicdb://artists/%u/", *it);
 
         if (!DownloadArtistInfo(strPath, strArtist, bCanceled)) // assume we want to retry
           m_artistsScanned.pop_back();
@@ -614,7 +624,7 @@ int CMusicInfoScanner::RetrieveMusicInfo(CFileItemList& items, const CStdString&
         return songsToAdd.size();
 
       CStdString strPath;
-      strPath.Format("musicdb://3/%u/",*it);
+      strPath.Format("musicdb://albums/%u/",*it);
 
       CAlbum album;
       m_musicDatabase.GetAlbumInfo(*it, album, NULL);
@@ -660,6 +670,7 @@ void CMusicInfoScanner::CategoriseAlbums(VECSONGS &songsToCheck, VECALBUMS &albu
     // map the songs to their primary artists
     bool tracksOverlap = false;
     bool hasAlbumArtist = false;
+    bool isCompilation = true;
 
     map<string, vector<CSong *> > artists;
     for (vector<CSong *>::iterator j = songs.begin(); j != songs.end(); ++j)
@@ -668,6 +679,9 @@ void CMusicInfoScanner::CategoriseAlbums(VECSONGS &songsToCheck, VECALBUMS &albu
       // test for song overlap
       if (j != songs.begin() && song->iTrack == (*(j-1))->iTrack)
         tracksOverlap = true;
+
+      if (! song->bCompilation)
+        isCompilation = false;
 
       // get primary artist
       string primary;
@@ -686,11 +700,12 @@ void CMusicInfoScanner::CategoriseAlbums(VECSONGS &songsToCheck, VECALBUMS &albu
     /*
      We have a compilation if
      1. album name is non-empty AND
-     2. no tracks overlap AND
+     2a. no tracks overlap OR
+     2b. all tracks are marked as part of compilation AND
      3a. a unique primary artist is specified as "various" or "various artists" OR
      3b. we have at least two primary artists and no album artist specified.
      */
-    bool compilation = !i->first.empty() && !tracksOverlap; // 1+2
+    bool compilation = !i->first.empty() && (isCompilation || !tracksOverlap); // 1+2b+2a
     if (artists.size() == 1)
     {
       string artist = artists.begin()->first; StringUtils::ToLower(artist);
@@ -853,7 +868,7 @@ int CMusicInfoScanner::CountFilesRecursively(const CStdString& strPath)
   // load subfolder
   CFileItemList items;
 //  CLog::Log(LOGDEBUG, __FUNCTION__" - processing dir: %s", strPath.c_str());
-  CDirectory::GetDirectory(strPath, items, g_settings.m_musicExtensions, DIR_FLAG_NO_FILE_DIRS);
+  CDirectory::GetDirectory(strPath, items, g_advancedSettings.m_musicExtensions, DIR_FLAG_NO_FILE_DIRS);
 
   if (m_bStop)
     return 0;
@@ -992,14 +1007,13 @@ bool CMusicInfoScanner::DownloadAlbumInfo(const CStdString& strPath, const CStdS
     }
   }
 
-  CGUIDialogSelect *pDlg=NULL;
+  CGUIDialogSelect *pDlg = NULL;
   int iSelectedAlbum=0;
   if (result == CNfoFile::NO_NFO)
   {
     iSelectedAlbum = -1; // set negative so that we can detect a failure
     if (scraper.Succeeded() && scraper.GetAlbumCount() >= 1)
     {
-      int bestMatch = -1;
       double bestRelevance = 0;
       double minRelevance = THRESHOLD;
       if (scraper.GetAlbumCount() > 1) // score the matches
@@ -1025,7 +1039,7 @@ bool CMusicInfoScanner::DownloadAlbumInfo(const CStdString& strPath, const CStdS
           if (relevance >= max(minRelevance, bestRelevance))
           { // we auto-select the best of these
             bestRelevance = relevance;
-            bestMatch = i;
+            iSelectedAlbum = i;
           }
           if (pDialog)
           {
@@ -1039,6 +1053,35 @@ bool CMusicInfoScanner::DownloadAlbumInfo(const CStdString& strPath, const CStdS
           if (relevance > .99f) // we're so close, no reason to search further
             break;
         }
+
+        if (pDialog && bestRelevance < THRESHOLD)
+        {
+          pDlg->Sort(false);
+          pDlg->DoModal();
+
+          // and wait till user selects one
+          if (pDlg->GetSelectedLabel() < 0)
+          { // none chosen
+            if (!pDlg->IsButtonPressed())
+              return false;
+
+            // manual button pressed
+            CStdString strNewAlbum = album.strAlbum;
+            if (!CGUIKeyboardFactory::ShowAndGetInput(strNewAlbum, g_localizeStrings.Get(16011), false)) return false;
+            if (strNewAlbum == "") return false;
+
+            CStdString strNewArtist = StringUtils::Join(album.artist, g_advancedSettings.m_musicItemSeparator);
+            if (!CGUIKeyboardFactory::ShowAndGetInput(strNewArtist, g_localizeStrings.Get(16025), false)) return false;
+
+            pDialog->SetLine(0, strNewAlbum);
+            pDialog->SetLine(1, strNewArtist);
+            pDialog->Progress();
+
+            m_musicDatabase.Close();
+            return DownloadAlbumInfo(strPath,strNewArtist,strNewAlbum,bCanceled,albumInfo,pDialog);
+          }
+          iSelectedAlbum = pDlg->GetSelectedItem()->m_idepth;
+        }
       }
       else
       {
@@ -1051,40 +1094,7 @@ bool CMusicInfoScanner::DownloadAlbumInfo(const CStdString& strPath, const CStdS
           m_musicDatabase.Close();
           return false;
         }
-        bestRelevance = relevance;
-        bestMatch = 0;
-      }
-
-      iSelectedAlbum = bestMatch;
-      if (pDialog && bestRelevance < THRESHOLD)
-      {
-        pDlg->Sort(false);
-        pDlg->DoModal();
-
-        // and wait till user selects one
-        if (pDlg->GetSelectedLabel() < 0)
-        { // none chosen
-          if (!pDlg->IsButtonPressed())
-          {
-            bCanceled = true;
-            return false;
-          }
-          // manual button pressed
-          CStdString strNewAlbum = strAlbum;
-          if (!CGUIKeyboardFactory::ShowAndGetInput(strNewAlbum, g_localizeStrings.Get(16011), false)) return false;
-          if (strNewAlbum == "") return false;
-
-          CStdString strNewArtist = strArtist;
-          if (!CGUIKeyboardFactory::ShowAndGetInput(strNewArtist, g_localizeStrings.Get(16025), false)) return false;
-
-          pDialog->SetLine(0, strNewAlbum);
-          pDialog->SetLine(1, strNewArtist);
-          pDialog->Progress();
-
-          m_musicDatabase.Close();
-          return DownloadAlbumInfo(strPath,strNewArtist,strNewAlbum,bCanceled,albumInfo,pDialog);
-        }
-        iSelectedAlbum = pDlg->GetSelectedItem()->m_idepth;
+        iSelectedAlbum = 0;
       }
     }
 
@@ -1149,7 +1159,7 @@ bool CMusicInfoScanner::DownloadArtistInfo(const CStdString& strPath, const CStd
   bCanceled = false;
   CArtist artist;
   m_musicDatabase.Open();
-  if (m_musicDatabase.GetArtistInfo(params.GetArtistId(),artist)) // already got the info
+  if (m_musicDatabase.HasArtistInfo(params.GetArtistId()) && m_musicDatabase.GetArtistInfo(params.GetArtistId(),artist)) // already got the info
     return true;
 
   // find artist info

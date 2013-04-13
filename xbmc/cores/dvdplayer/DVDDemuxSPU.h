@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -46,8 +46,8 @@ public:
   CDVDOverlaySpu* AddData(BYTE* data, int iSize, double pts); // returns a packet from ParsePacket if possible
 
   CDVDOverlaySpu* ParseRLE(CDVDOverlaySpu* pSPU, BYTE* pUnparsedData);
-  void FindSubtitleColor(int last_color, int stats[4], CDVDOverlaySpu* pSPU);
-  bool CanDisplayWithAlphas(int a[4], int stats[4]);
+  static void FindSubtitleColor(int last_color, int stats[4], CDVDOverlaySpu* pSPU);
+  static bool CanDisplayWithAlphas(int a[4], int stats[4]);
 
   void Reset();
   void FlushCurrentPacket(); // flushes current unparsed data

@@ -1,5 +1,5 @@
  /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -170,6 +170,7 @@ namespace XBMCAddon
       //  into Python anyway. This must result in a problem when 
       virtual void onControl(Control* control);
       virtual void onClick(int controlId);
+      virtual void onDoubleClick(int controlId);
       virtual void onFocus(int controlId);
       virtual void onInit();
 

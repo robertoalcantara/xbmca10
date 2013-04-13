@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2011-2012 Team XBMC
+ *      Copyright (C) 2011-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 #include "ApplicationMessenger.h"
 #include "GUIInfoManager.h"
 #include "guilib/GUIWindowManager.h"
+#include "guilib/Key.h"
 #include "interfaces/Builtins.h"
 #include "dialogs/GUIDialogKaiToast.h"
 #include "addons/AddonManager.h"

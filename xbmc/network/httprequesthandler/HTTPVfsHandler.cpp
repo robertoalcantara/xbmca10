@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2011-2012 Team XBMC
+ *      Copyright (C) 2011-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 #include "URL.h"
 #include "filesystem/File.h"
 #include "network/WebServer.h"
-#include "settings/Settings.h"
+#include "settings/MediaSourceSettings.h"
 #include "utils/URIUtils.h"
 
 using namespace std;
@@ -58,7 +58,7 @@ int CHTTPVfsHandler::HandleHTTPRequest(const HTTPRequest &request)
         VECSOURCES *sources = NULL;
         for (unsigned int index = 0; index < size && !accessible; index++)
         {
-          sources = g_settings.GetSourcesFromType(sourceTypes[index]);
+          sources = CMediaSourceSettings::Get().GetSources(sourceTypes[index]);
           if (sources == NULL)
             continue;
 

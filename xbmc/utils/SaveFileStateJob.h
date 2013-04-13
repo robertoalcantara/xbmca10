@@ -6,6 +6,8 @@
 #include "FileItem.h"
 #include "pvr/PVRManager.h"
 #include "pvr/recordings/PVRRecordings.h"
+#include "settings/MediaSettings.h"
+#include "network/upnp/UPnP.h"
 
 class CSaveFileStateJob : public CJob
 {
@@ -31,12 +33,18 @@ bool CSaveFileStateJob::DoWork()
   CStdString progressTrackingFile = m_item.GetPath();
   if (m_item.HasVideoInfoTag() && m_item.GetVideoInfoTag()->m_strFileNameAndPath.Find("removable://") == 0)
     progressTrackingFile = m_item.GetVideoInfoTag()->m_strFileNameAndPath; // this variable contains removable:// suffixed by disc label+uniqueid or is empty if label not uniquely identified
-  else if (m_item.HasProperty("original_listitem_url") && 
-      URIUtils::IsPlugin(m_item.GetProperty("original_listitem_url").asString()))
+  else if (m_item.HasProperty("original_listitem_url"))
     progressTrackingFile = m_item.GetProperty("original_listitem_url").asString();
 
   if (progressTrackingFile != "")
   {
+#ifdef HAS_UPNP
+    // checks if UPnP server of this file is available and supports updating
+    if (URIUtils::IsUPnP(progressTrackingFile)
+          && UPNP::CUPnP::SaveFileState(m_item, m_bookmark, m_updatePlayCount)) {
+        return true;
+    }
+#endif
     if (m_item.IsVideo())
     {
       CLog::Log(LOGDEBUG, "%s - Saving file state for video item %s", __FUNCTION__, progressTrackingFile.c_str());
@@ -87,23 +95,38 @@ bool CSaveFileStateJob::DoWork()
               recording->m_resumePoint = m_bookmark;
             }
 
+            // UPnP announce resume point changes to clients
+            // however not if playcount is modified as that already announces
+            if (m_item.IsVideoDb() && !m_updatePlayCount)
+            {
+              CVariant data;
+              data["id"] = m_item.GetVideoInfoTag()->m_iDbId;
+              data["type"] = m_item.GetVideoInfoTag()->m_type;
+              ANNOUNCEMENT::CAnnouncementManager::Announce(ANNOUNCEMENT::VideoLibrary, "xbmc", "OnUpdate", data);
+            }
+
             updateListing = true;
           }
         }
 
-        if (g_settings.m_currentVideoSettings != g_settings.m_defaultVideoSettings)
+        if (CMediaSettings::Get().GetCurrentVideoSettings() != CMediaSettings::Get().GetDefaultVideoSettings())
         {
-          videodatabase.SetVideoSettings(progressTrackingFile, g_settings.m_currentVideoSettings);
+          videodatabase.SetVideoSettings(progressTrackingFile, CMediaSettings::Get().GetCurrentVideoSettings());
         }
 
-        if ((m_item.IsDVDImage() ||
-             m_item.IsDVDFile()    ) &&
-             m_item.HasVideoInfoTag() &&
-             m_item.GetVideoInfoTag()->HasStreamDetails())
+        if (m_item.HasVideoInfoTag() && m_item.GetVideoInfoTag()->HasStreamDetails())
         {
-          videodatabase.SetStreamDetailsForFile(m_item.GetVideoInfoTag()->m_streamDetails,progressTrackingFile);
-          updateListing = true;
+          CFileItem dbItem(m_item);
+          videodatabase.GetStreamDetails(dbItem); // Fetch stream details from the db (if any)
+
+          // Check whether the item's db streamdetails need updating
+          if (!dbItem.GetVideoInfoTag()->HasStreamDetails() || dbItem.GetVideoInfoTag()->m_streamDetails != m_item.GetVideoInfoTag()->m_streamDetails)
+          {
+            videodatabase.SetStreamDetailsForFile(m_item.GetVideoInfoTag()->m_streamDetails, progressTrackingFile);
+            updateListing = true;
+          }
         }
+
         // in order to properly update the the list, we need to update the stack item which is held in g_application.m_stackFileItemToUpdate
         if (m_item.HasProperty("stackFileItemToUpdate"))
         {

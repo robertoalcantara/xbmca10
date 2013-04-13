@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -35,6 +35,7 @@ namespace dbiplus
 
 typedef enum {
   // special fields used during sorting
+  FieldUnknown = -1,
   FieldNone = 0,
   FieldSort,        // used to store the string to use for sorting
   FieldSortSpecial, // whether the item needs special handling (0 = no, 1 = sort on top, 2 = sort on bottom)
@@ -54,6 +55,7 @@ typedef enum {
   FieldListeners,
   FieldPlaylist,
   FieldRandom,
+  FieldDateTaken,
 
   // fields retrievable from the database
   FieldId,

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2011-2012 Team XBMC
+ *      Copyright (C) 2011-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@
 #include "WebSocketV8.h"
 #include "WebSocket.h"
 #include "utils/Base64.h"
-#include "utils/CharsetConverter.h"
 #include "utils/EndianSwap.h"
 #include "utils/HttpParser.h"
 #include "utils/HttpResponse.h"

@@ -1,6 +1,6 @@
 #pragma once
 /*
- *      Copyright (C) 2005-2010 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -43,9 +43,12 @@ extern "C" {
     #include <ffmpeg/avformat.h>
   #endif
   /* av_read_frame_flush() is defined for us in lib/xbmc-dll-symbols/DllAvFormat.c */
-  void av_read_frame_flush(AVFormatContext *s);
+  // void av_read_frame_flush(AVFormatContext *s); // av_read_frame_flush decrepated
+  void ff_read_frame_flush(AVFormatContext *s);    // internal replacement
 #else
   #include "libavformat/avformat.h"
+  void ff_read_frame_flush(AVFormatContext *s);    // internal replacement
+
 #endif
 }
 
@@ -62,7 +65,6 @@ public:
   virtual ~DllAvFormatInterface() {}
   virtual void av_register_all_dont_call(void)=0;
   virtual AVInputFormat *av_find_input_format(const char *short_name)=0;
-  virtual int url_feof(AVIOContext *s)=0;
   virtual void avformat_close_input(AVFormatContext **s)=0;
   virtual int av_read_frame(AVFormatContext *s, AVPacket *pkt)=0;
   virtual void av_read_frame_flush(AVFormatContext *s)=0;
@@ -114,10 +116,9 @@ public:
   } 
   virtual void av_register_all_dont_call() { *(volatile int* )0x0 = 0; } 
   virtual AVInputFormat *av_find_input_format(const char *short_name) { return ::av_find_input_format(short_name); }
-  virtual int url_feof(AVIOContext *s) { return ::url_feof(s); }
   virtual void avformat_close_input(AVFormatContext **s) { ::avformat_close_input(s); }
   virtual int av_read_frame(AVFormatContext *s, AVPacket *pkt) { return ::av_read_frame(s, pkt); }
-  virtual void av_read_frame_flush(AVFormatContext *s) { ::av_read_frame_flush(s); }
+  virtual void av_read_frame_flush(AVFormatContext *s) { ::ff_read_frame_flush(s); } // av_read_frame_flush decrepated 
   virtual int av_read_play(AVFormatContext *s) { return ::av_read_play(s); }
   virtual int av_read_pause(AVFormatContext *s) { return ::av_read_pause(s); }
   virtual int av_seek_frame(AVFormatContext *s, int stream_index, int64_t timestamp, int flags) { return ::av_seek_frame(s, stream_index, timestamp, flags); }
@@ -175,7 +176,6 @@ class DllAvFormat : public DllDynamic, DllAvFormatInterface
 
   DEFINE_METHOD0(void, av_register_all_dont_call)
   DEFINE_METHOD1(AVInputFormat*, av_find_input_format, (const char *p1))
-  DEFINE_METHOD1(int, url_feof, (AVIOContext *p1))
   DEFINE_METHOD1(void, avformat_close_input, (AVFormatContext **p1))
   DEFINE_METHOD1(int, av_read_play, (AVFormatContext *p1))
   DEFINE_METHOD1(int, av_read_pause, (AVFormatContext *p1))
@@ -212,7 +212,6 @@ class DllAvFormat : public DllDynamic, DllAvFormatInterface
   BEGIN_METHOD_RESOLVE()
     RESOLVE_METHOD_RENAME(av_register_all, av_register_all_dont_call)
     RESOLVE_METHOD(av_find_input_format)
-    RESOLVE_METHOD(url_feof)
     RESOLVE_METHOD(avformat_close_input)
     RESOLVE_METHOD(av_read_frame)
     RESOLVE_METHOD(av_read_play)

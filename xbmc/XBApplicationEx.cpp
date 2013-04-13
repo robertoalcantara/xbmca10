@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,6 @@ CXBApplicationEx::CXBApplicationEx()
 {
   // Variables to perform app timing
   m_bStop = false;
-  m_AppActive = true;
   m_AppFocused = true;
   m_ExitCode = EXITCODE_QUIT;
   m_renderGUI = false;
@@ -53,7 +52,6 @@ bool CXBApplicationEx::Create()
 {
   // Variables to perform app timing
   m_bStop = false;
-  m_AppActive = true;
   m_AppFocused = true;
   m_ExitCode = EXITCODE_QUIT;
 

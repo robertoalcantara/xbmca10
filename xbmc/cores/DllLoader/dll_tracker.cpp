@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -65,14 +65,14 @@ void tracker_dll_free(DllLoader* pDll)
       }
       // free all functions which where created at the time we loaded the dll
 	    DummyListIter dit = (*it)->dummyList.begin();
-	    while (dit != (*it)->dummyList.end()) { free((void*)*dit); dit++;	}
+	    while (dit != (*it)->dummyList.end()) { free((void*)*dit); ++dit;	}
 	    (*it)->dummyList.clear();
 	
       delete (*it);
       it = g_trackedDlls.erase(it);
     }
     else
-      it++;
+      ++it;
   }
 }
 

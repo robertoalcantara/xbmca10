@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *      Initial code sponsored by: Voddler Inc (voddler.com)
@@ -107,6 +107,7 @@ namespace OVERLAY {
       {
         overlay_dvd = NULL;
         overlay     = NULL;
+        pts         = 0.0;
       }
       double pts;
       CDVDOverlay* overlay_dvd;

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -130,45 +130,3 @@ bool CSong::ArtMatches(const CSong &right) const
   return (right.strThumb == strThumb &&
           embeddedArt.matches(right.embeddedArt));
 }
-
-CSongMap::CSongMap()
-{
-}
-
-std::map<CStdString, CSong>::const_iterator CSongMap::Begin()
-{
-  return m_map.begin();
-}
-
-std::map<CStdString, CSong>::const_iterator CSongMap::End()
-{
-  return m_map.end();
-}
-
-void CSongMap::Add(const CStdString &file, const CSong &song)
-{
-  CStdString lower = file;
-  lower.ToLower();
-  m_map.insert(pair<CStdString, CSong>(lower, song));
-}
-
-CSong* CSongMap::Find(const CStdString &file)
-{
-  CStdString lower = file;
-  lower.ToLower();
-  map<CStdString, CSong>::iterator it = m_map.find(lower);
-  if (it == m_map.end())
-    return NULL;
-  return &(*it).second;
-}
-
-void CSongMap::Clear()
-{
-  m_map.erase(m_map.begin(), m_map.end());
-}
-
-int CSongMap::Size()
-{
-  return (int)m_map.size();
-}
-

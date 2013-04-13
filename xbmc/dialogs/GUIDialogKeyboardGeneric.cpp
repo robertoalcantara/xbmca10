@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include "input/XBMC_vkeys.h"
 #include "guilib/GUILabelControl.h"
 #include "guilib/GUIWindowManager.h"
+#include "guilib/Key.h"
 #include "guilib/LocalizeStrings.h"
 #include "GUIUserMessages.h"
 #include "GUIDialogNumeric.h"
@@ -44,6 +45,7 @@ static char symbol_map[37] = ")!@#$%^&*([]{}-_=+;:\'\",.<>/?\\|`~    ";
 #define CTL_BUTTON_LEFT       305
 #define CTL_BUTTON_RIGHT      306
 #define CTL_BUTTON_IP_ADDRESS 307
+#define CTL_BUTTON_CLEAR      308
 
 #define CTL_LABEL_EDIT        310
 #define CTL_LABEL_HEADING     311
@@ -260,6 +262,9 @@ bool CGUIDialogKeyboardGeneric::OnMessage(CGUIMessage& message)
         break;
       case CTL_BUTTON_IP_ADDRESS:
         OnIPAddress();
+        break;
+      case CTL_BUTTON_CLEAR:
+        SetText("");
         break;
       default:
         m_lastRemoteKeyClicked = 0;
@@ -639,6 +644,12 @@ void CGUIDialogKeyboardGeneric::SetHeading(const std::string &heading)
 int CGUIDialogKeyboardGeneric::GetWindowId() const
 {
   return GetID();
+}
+
+void CGUIDialogKeyboardGeneric::Cancel()
+{
+  m_bIsConfirmed = false;
+  Close();
 }
 
 bool CGUIDialogKeyboardGeneric::ShowAndGetInput(char_callback_t pCallback, const std::string &initialString, std::string &typedString, const std::string &heading, bool bHiddenInput)

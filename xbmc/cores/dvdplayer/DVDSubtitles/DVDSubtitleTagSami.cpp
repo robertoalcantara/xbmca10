@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -31,6 +31,8 @@ CDVDSubtitleTagSami::~CDVDSubtitleTagSami()
 
 bool CDVDSubtitleTagSami::Init()
 {
+  delete m_tags;
+  delete m_tagOptions;
   m_tags = new CRegExp(true);
   if (!m_tags->RegComp("(<[^>]*>|\\{[^\\}]*\\})"))
     return false;

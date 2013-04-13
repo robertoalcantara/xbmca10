@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -27,8 +27,8 @@
 #include "filesystem/File.h"
 #include "utils/LangCodeExpander.h"
 #include "LangInfo.h"
+#include "profiles/ProfilesManager.h"
 #include "settings/GUISettings.h"
-#include "settings/Settings.h"
 #include "utils/StringUtils.h"
 #include "utils/SystemInfo.h"
 #include "utils/URIUtils.h"
@@ -41,6 +41,30 @@ using namespace XFILE;
 CAdvancedSettings::CAdvancedSettings()
 {
   m_initialized = false;
+}
+
+void CAdvancedSettings::OnSettingsLoaded()
+{
+  // load advanced settings
+  Load();
+
+  // default players?
+  CLog::Log(LOGNOTICE, "Default DVD Player: %s", m_videoDefaultDVDPlayer.c_str());
+  CLog::Log(LOGNOTICE, "Default Video Player: %s", m_videoDefaultPlayer.c_str());
+  CLog::Log(LOGNOTICE, "Default Audio Player: %s", m_audioDefaultPlayer.c_str());
+
+  // setup any logging...
+  if (g_guiSettings.GetBool("debug.showloginfo"))
+  {
+    m_logLevel = std::max(m_logLevelHint, LOG_LEVEL_DEBUG_FREEMEM);
+    CLog::Log(LOGNOTICE, "Enabled debug logging due to GUI setting (%d)", m_logLevel);
+  }
+  else
+  {
+    m_logLevel = std::min(m_logLevelHint, LOG_LEVEL_DEBUG/*LOG_LEVEL_NORMAL*/);
+    CLog::Log(LOGNOTICE, "Disabled debug logging due to GUI setting. Level %d.", m_logLevel);
+  }
+  CLog::SetLogLevel(m_logLevel);
 }
 
 void CAdvancedSettings::Initialize()
@@ -112,6 +136,7 @@ void CAdvancedSettings::Initialize()
   m_DXVANoDeintProcForProgressive = false;
   m_videoFpsDetect = 1;
   m_videoDefaultLatency = 0.0;
+  m_videoDisableHi10pMultithreading = false;
 
   m_musicUseTimeSeeking = true;
   m_musicTimeSeekForward = 10;
@@ -126,11 +151,6 @@ void CAdvancedSettings::Initialize()
   m_slideshowPanAmount = 2.5f;
   m_slideshowZoomAmount = 5.0f;
   m_slideshowBlackBarCompensation = 20.0f;
-
-  m_lcdHeartbeat = false;
-  m_lcdDimOnScreenSave = false;
-  m_lcdScrolldelay = 1;
-  m_lcdHostName = "localhost";
 
   m_songInfoDuration = 10;
 
@@ -321,7 +341,26 @@ void CAdvancedSettings::Initialize()
   m_databaseMusic.Reset();
   m_databaseVideo.Reset();
 
+  m_pictureExtensions = ".png|.jpg|.jpeg|.bmp|.gif|.ico|.tif|.tiff|.tga|.pcx|.cbz|.zip|.cbr|.rar|.m3u|.dng|.nef|.cr2|.crw|.orf|.arw|.erf|.3fr|.dcr|.x3f|.mef|.raf|.mrw|.pef|.sr2|.rss";
+  m_musicExtensions = ".nsv|.m4a|.flac|.aac|.strm|.pls|.rm|.rma|.mpa|.wav|.wma|.ogg|.mp3|.mp2|.m3u|.mod|.amf|.669|.dmf|.dsm|.far|.gdm|.imf|.it|.m15|.med|.okt|.s3m|.stm|.sfx|.ult|.uni|.xm|.sid|.ac3|.dts|.cue|.aif|.aiff|.wpl|.ape|.mac|.mpc|.mp+|.mpp|.shn|.zip|.rar|.wv|.nsf|.spc|.gym|.adx|.dsp|.adp|.ymf|.ast|.afc|.hps|.xsp|.xwav|.waa|.wvs|.wam|.gcm|.idsp|.mpdsp|.mss|.spt|.rsd|.mid|.kar|.sap|.cmc|.cmr|.dmc|.mpt|.mpd|.rmt|.tmc|.tm8|.tm2|.oga|.url|.pxml|.tta|.rss|.cm3|.cms|.dlt|.brstm|.wtv|.mka";
+  m_videoExtensions = ".m4v|.3g2|.3gp|.nsv|.tp|.ts|.ty|.strm|.pls|.rm|.rmvb|.m3u|.m3u8|.ifo|.mov|.qt|.divx|.xvid|.bivx|.vob|.nrg|.img|.iso|.pva|.wmv|.asf|.asx|.ogm|.m2v|.avi|.bin|.dat|.mpg|.mpeg|.mp4|.mkv|.avc|.vp3|.svq3|.nuv|.viv|.dv|.fli|.flv|.rar|.001|.wpl|.zip|.vdr|.dvr-ms|.xsp|.mts|.m2t|.m2ts|.evo|.ogv|.sdp|.avs|.rec|.url|.pxml|.vc1|.h264|.rcv|.rss|.mpls|.webm|.bdmv|.wtv";
+  m_discStubExtensions = ".disc";
+  // internal music extensions
+  m_musicExtensions += "|.sidstream|.oggstream|.nsfstream|.asapstream|.cdda";
+  // internal video extensions
+  m_videoExtensions += "|.pvr";
+
   m_logLevelHint = m_logLevel = LOG_LEVEL_NORMAL;
+
+  #if defined(TARGET_DARWIN)
+    CStdString logDir = getenv("HOME");
+    logDir += "/Library/Logs/";
+    m_logFolder = logDir;
+  #else
+    m_logFolder = "special://home/";              // log file location
+  #endif
+
+  m_userAgent = g_sysinfo.GetUserAgent();
 }
 
 bool CAdvancedSettings::Load()
@@ -333,7 +372,7 @@ bool CAdvancedSettings::Load()
   ParseSettingsFile("special://xbmc/system/advancedsettings.xml");
   for (unsigned int i = 0; i < m_settingsFiles.size(); i++)
     ParseSettingsFile(m_settingsFiles[i]);
-  ParseSettingsFile(g_settings.GetUserDataItem("advancedsettings.xml"));
+  ParseSettingsFile(CProfilesManager::Get().GetUserDataItem("advancedsettings.xml"));
   return true;
 }
 
@@ -498,6 +537,7 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     XMLUtils::GetBoolean(pElement,"enablehighqualityhwscalers", m_videoEnableHighQualityHwScalers);
     XMLUtils::GetFloat(pElement,"autoscalemaxfps",m_videoAutoScaleMaxFps, 0.0f, 1000.0f);
     XMLUtils::GetBoolean(pElement,"allowmpeg4vdpau",m_videoAllowMpeg4VDPAU);
+    XMLUtils::GetBoolean(pElement,"disablehi10pmultithreading",m_videoDisableHi10pMultithreading);
     XMLUtils::GetBoolean(pElement,"allowmpeg4vaapi",m_videoAllowMpeg4VAAPI);    
     XMLUtils::GetBoolean(pElement, "disablebackgrounddeinterlace", m_videoDisableBackgroundDeinterlace);
     XMLUtils::GetInt(pElement, "useocclusionquery", m_videoCaptureUseOcclusionQuery, -1, 1);
@@ -676,14 +716,6 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
     XMLUtils::GetFloat(pElement, "blackbarcompensation", m_slideshowBlackBarCompensation, 0.0f, 50.0f);
   }
 
-  pElement = pRootElement->FirstChildElement("lcd");
-  if (pElement)
-  {
-    XMLUtils::GetBoolean(pElement, "heartbeat", m_lcdHeartbeat);
-    XMLUtils::GetBoolean(pElement, "dimonscreensave", m_lcdDimOnScreenSave);
-    XMLUtils::GetInt(pElement, "scrolldelay", m_lcdScrolldelay, -8, 8);
-    XMLUtils::GetString(pElement, "hostname", m_lcdHostName);
-  }
   pElement = pRootElement->FirstChildElement("network");
   if (pElement)
   {
@@ -826,29 +858,35 @@ void CAdvancedSettings::ParseSettingsFile(const CStdString &file)
   // picture extensions
   TiXmlElement* pExts = pRootElement->FirstChildElement("pictureextensions");
   if (pExts)
-    GetCustomExtensions(pExts,g_settings.m_pictureExtensions);
+    GetCustomExtensions(pExts, m_pictureExtensions);
 
   // music extensions
   pExts = pRootElement->FirstChildElement("musicextensions");
   if (pExts)
-    GetCustomExtensions(pExts,g_settings.m_musicExtensions);
+    GetCustomExtensions(pExts, m_musicExtensions);
 
   // video extensions
   pExts = pRootElement->FirstChildElement("videoextensions");
   if (pExts)
-    GetCustomExtensions(pExts,g_settings.m_videoExtensions);
+    GetCustomExtensions(pExts, m_videoExtensions);
 
   // stub extensions
   pExts = pRootElement->FirstChildElement("discstubextensions");
   if (pExts)
-    GetCustomExtensions(pExts,g_settings.m_discStubExtensions);
+    GetCustomExtensions(pExts, m_discStubExtensions);
+
+  // Add the list of disc stub extensions (if any) to the list of video extensions
+  if (!m_discStubExtensions.IsEmpty())
+    m_videoExtensions += "|" + m_discStubExtensions;
 
   m_vecTokens.clear();
   CLangInfo::LoadTokens(pRootElement->FirstChild("sorttokens"),m_vecTokens);
 
   // TODO: Should cache path be given in terms of our predefined paths??
   //       Are we even going to have predefined paths??
-  CSettings::GetPath(pRootElement, "cachepath", m_cachePath);
+  CStdString tmp;
+  if (XMLUtils::GetPath(pRootElement, "cachepath", tmp))
+    m_cachePath = tmp;
   URIUtils::AddSlashAtEnd(m_cachePath);
 
   g_LangCodeExpander.LoadUserCodes(pRootElement->FirstChildElement("languagecodes"));
@@ -1066,6 +1104,14 @@ void CAdvancedSettings::Clear()
   m_audioExcludeFromScanRegExps.clear();
   m_audioExcludeFromListingRegExps.clear();
   m_pictureExcludeFromListingRegExps.clear();
+
+  m_pictureExtensions.clear();
+  m_musicExtensions.clear();
+  m_videoExtensions.clear();
+  m_discStubExtensions.clear();
+
+  m_logFolder.clear();
+  m_userAgent.clear();
 }
 
 void CAdvancedSettings::GetCustomTVRegexps(TiXmlElement *pRootElement, SETTINGS_TVSHOWLIST& settings)
@@ -1169,11 +1215,9 @@ void CAdvancedSettings::GetCustomRegexps(TiXmlElement *pRootElement, CStdStringA
 void CAdvancedSettings::GetCustomExtensions(TiXmlElement *pRootElement, CStdString& extensions)
 {
   CStdString extraExtensions;
-  CSettings::GetString(pRootElement,"add",extraExtensions,"");
-  if (extraExtensions != "")
+  if (XMLUtils::GetString(pRootElement, "add", extraExtensions) && !extraExtensions.empty())
     extensions += "|" + extraExtensions;
-  CSettings::GetString(pRootElement,"remove",extraExtensions,"");
-  if (extraExtensions != "")
+  if (XMLUtils::GetString(pRootElement, "remove", extraExtensions) && !extraExtensions.empty())
   {
     CStdStringArray exts;
     StringUtils::SplitString(extraExtensions,"|",exts);

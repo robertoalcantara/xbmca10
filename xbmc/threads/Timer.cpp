@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2012 Team XBMC
+ *      Copyright (C) 2012-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #include "SystemClock.h"
 
 CTimer::CTimer(ITimerCallback *callback)
-  : CThread("CTimer"),
+  : CThread("Timer"),
     m_callback(callback),
     m_timeout(0),
     m_interval(false),

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -44,67 +44,56 @@ CEGLWrapper::~CEGLWrapper()
   Destroy();
 }
 
+namespace
+{
+  bool
+  CorrectGuess(CEGLNativeType *guess,
+               const std::string &implementation)
+  {
+    assert(guess != NULL);
+
+    if(guess->CheckCompatibility())
+    {
+      if (implementation == guess->GetNativeName() ||
+          implementation == "auto")
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  template <class NativeType>
+  CEGLNativeType * CreateEGLNativeType(const std::string &implementation)
+  {
+    CEGLNativeType *guess = new NativeType;
+    if(CorrectGuess(guess, implementation))
+      return guess;
+
+    delete guess;
+    return NULL;
+  }
+}
+
 bool CEGLWrapper::Initialize(const std::string &implementation)
 {
-  bool ret = false;
   CEGLNativeType *nativeGuess = NULL;
 
-  nativeGuess = new CEGLNativeTypeAndroid;
-  if (nativeGuess->CheckCompatibility())
+  // Try to create each backend in sequence and go with the first one
+  // that we know will work
+  if ((nativeGuess = CreateEGLNativeType<CEGLNativeTypeAndroid>(implementation)) ||
+      (nativeGuess = CreateEGLNativeType<CEGLNativeTypeAmlogic>(implementation)) ||
+      (nativeGuess = CreateEGLNativeType<CEGLNativeTypeA10>(implementation)) ||
+      (nativeGuess = CreateEGLNativeType<CEGLNativeTypeRaspberryPI>(implementation)))
   {
-    if(implementation == nativeGuess->GetNativeName() || implementation == "auto")
-    {
-      m_nativeTypes = nativeGuess;
-      ret = true;
-    }
-  }
+    m_nativeTypes = nativeGuess;
 
-  if (!ret)
-  {
-    delete nativeGuess;
-    nativeGuess = new CEGLNativeTypeAmlogic;
-    if (nativeGuess->CheckCompatibility())
-    {
-      if(implementation == nativeGuess->GetNativeName() || implementation == "auto")
-      {
-        m_nativeTypes = nativeGuess;
-        ret = true;
-      }
-    }
-  }
-
-  if (!ret)
-  {
-    delete nativeGuess;
-    nativeGuess = new CEGLNativeTypeRaspberryPI;
-    if (nativeGuess->CheckCompatibility())
-    {
-      if(implementation == nativeGuess->GetNativeName() || implementation == "auto")
-      {
-        m_nativeTypes = nativeGuess;
-        ret = true;
-      }
-    }
-  }
-
-  if (!ret)
-  {
-    delete nativeGuess;
-    nativeGuess = new CEGLNativeTypeA10;
-    if (nativeGuess->CheckCompatibility())
-    {
-      if(implementation == nativeGuess->GetNativeName() || implementation == "auto")
-      {
-        m_nativeTypes = nativeGuess;
-        ret = true;
-      }
-    }
-  }
-
-  if (ret && m_nativeTypes)
     m_nativeTypes->Initialize();
+    return true;
+  }
 
-  return ret;
+  return false;
 }
 
 bool CEGLWrapper::Destroy()
@@ -285,7 +274,6 @@ bool CEGLWrapper::CreateSurface(EGLDisplay display, EGLConfig config, EGLSurface
 
   *surface = eglCreateWindowSurface(display, config, *nativeWindow, NULL);
   CheckError();
-
   return *surface != EGL_NO_SURFACE;
 }
 

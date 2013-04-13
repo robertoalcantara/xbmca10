@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 class COMXAudioCodecOMX
 {
 public:
-  void Upmix(void *input, unsigned int channelsInput,  void *output,
+  static void Upmix(void *input, unsigned int channelsInput,  void *output,
     unsigned int channelsOutput, unsigned int frames, AEDataFormat dataFormat);
   COMXAudioCodecOMX();
   virtual ~COMXAudioCodecOMX();
@@ -44,8 +44,8 @@ public:
   int GetChannels();
   virtual CAEChannelInfo GetChannelMap();
   int GetSampleRate();
-  int GetBitsPerSample();
-  const char* GetName() { return "FFmpeg"; }
+  static int GetBitsPerSample();
+  static const char* GetName() { return "FFmpeg"; }
   int GetBufferSize() { return m_iBuffered; }
   int GetBitRate();
 

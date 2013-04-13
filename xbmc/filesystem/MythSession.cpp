@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -358,7 +358,7 @@ void CMythSession::SetSeasonAndEpisode(const cmyth_proginfo_t &program, int *sea
   return;
 }
 
-CMythSession::CMythSession(const CURL& url) : CThread("CMythSession")
+CMythSession::CMythSession(const CURL& url) : CThread("MythSession")
 {
   m_control   = NULL;
   m_event     = NULL;

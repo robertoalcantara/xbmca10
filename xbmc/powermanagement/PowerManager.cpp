@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2005-2012 Team XBMC
+ *      Copyright (C) 2005-2013 Team XBMC
  *      http://www.xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
@@ -31,11 +31,9 @@
 #include "interfaces/AnnouncementManager.h"
 #include "guilib/LocalizeStrings.h"
 #include "guilib/GraphicContext.h"
+#include "guilib/GUIWindowManager.h"
+#include "dialogs/GUIDialogBusy.h"
 #include "dialogs/GUIDialogKaiToast.h"
-
-#ifdef HAS_LCD
-#include "utils/LCDFactory.h"
-#endif
 
 #if defined(TARGET_DARWIN)
 #include "osx/CocoaPowerSyscall.h"
@@ -141,24 +139,57 @@ void CPowerManager::SetDefaults()
 
 bool CPowerManager::Powerdown()
 {
-  return CanPowerdown() ? m_instance->Powerdown() : false;
+  if (CanPowerdown() && m_instance->Powerdown())
+  {
+    CGUIDialogBusy* dialog = (CGUIDialogBusy*)g_windowManager.GetWindow(WINDOW_DIALOG_BUSY);
+    if (dialog)
+      dialog->Show();
+
+    return true;
+  }
+
+  return false;
 }
 
 bool CPowerManager::Suspend()
 {
-  return CanSuspend() ? m_instance->Suspend() : false;
+  if (CanSuspend() && m_instance->Suspend())
+  {
+    CGUIDialogBusy* dialog = (CGUIDialogBusy*)g_windowManager.GetWindow(WINDOW_DIALOG_BUSY);
+    if (dialog)
+      dialog->Show();
+
+    return true;
+  }
+
+  return false;
 }
 
 bool CPowerManager::Hibernate()
 {
-  return CanHibernate() ? m_instance->Hibernate() : false;
+  if (CanHibernate() && m_instance->Hibernate())
+  {
+    CGUIDialogBusy* dialog = (CGUIDialogBusy*)g_windowManager.GetWindow(WINDOW_DIALOG_BUSY);
+    if (dialog)
+      dialog->Show();
+
+    return true;
+  }
+
+  return false;
 }
 bool CPowerManager::Reboot()
 {
   bool success = CanReboot() ? m_instance->Reboot() : false;
 
   if (success)
+  {
     CAnnouncementManager::Announce(System, "xbmc", "OnRestart");
+
+    CGUIDialogBusy* dialog = (CGUIDialogBusy*)g_windowManager.GetWindow(WINDOW_DIALOG_BUSY);
+    if (dialog)
+      dialog->Show();
+  }
 
   return success;
 }
@@ -193,10 +224,6 @@ void CPowerManager::OnSleep()
   CAnnouncementManager::Announce(System, "xbmc", "OnSleep");
   CLog::Log(LOGNOTICE, "%s: Running sleep jobs", __FUNCTION__);
 
-#ifdef HAS_LCD
-  g_lcd->SetBackLight(0);
-#endif
-
   // stop lirc
 #if defined(HAS_LIRC) || defined(HAS_IRSERVERSUITE)
   CLog::Log(LOGNOTICE, "%s: Stopping lirc", __FUNCTION__);
@@ -216,6 +243,10 @@ void CPowerManager::OnWake()
 
   // reset out timers
   g_application.ResetShutdownTimers();
+
+  CGUIDialogBusy* dialog = (CGUIDialogBusy*)g_windowManager.GetWindow(WINDOW_DIALOG_BUSY);
+  if (dialog)
+    dialog->Close();
 
 #if defined(HAS_SDL) || defined(TARGET_WINDOWS)
   if (g_Windowing.IsFullScreen())
@@ -237,14 +268,6 @@ void CPowerManager::OnWake()
 #if defined(HAS_LIRC) || defined(HAS_IRSERVERSUITE)
   CLog::Log(LOGNOTICE, "%s: Restarting lirc", __FUNCTION__);
   CBuiltins::Execute("LIRC.Start");
-#endif
-
-  // restart and undim lcd
-#ifdef HAS_LCD
-  CLog::Log(LOGNOTICE, "%s: Restarting lcd", __FUNCTION__);
-  g_lcd->SetBackLight(1);
-  g_lcd->Stop();
-  g_lcd->Initialize();
 #endif
 
   CAEFactory::Resume();
