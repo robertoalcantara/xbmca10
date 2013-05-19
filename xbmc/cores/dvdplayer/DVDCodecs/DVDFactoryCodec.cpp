@@ -38,6 +38,9 @@
 #if defined(HAVE_LIBCRYSTALHD)
 #include "Video/DVDVideoCodecCrystalHD.h"
 #endif
+#if defined(HAS_LIBAMCODEC)
+#include "Video/DVDVideoCodecAmlogic.h"
+#endif
 #ifdef ALLWINNERA10
 #include "Video/DVDVideoCodecA10.h"
 #endif
@@ -56,7 +59,7 @@
 
 
 #include "DVDStreamInfo.h"
-#include "settings/GUISettings.h"
+#include "settings/Settings.h"
 #include "utils/SystemInfo.h"
 
 CDVDVideoCodec* CDVDFactoryCodec::OpenCodec(CDVDVideoCodec* pCodec, CDVDStreamInfo &hints, CDVDCodecOptions &options )
@@ -154,6 +157,11 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, unsigne
 #else
   hwSupport += "CrystalHD:no ";
 #endif
+#if defined(HAS_LIBAMCODEC)
+  hwSupport += "AMCodec:yes ";
+#else
+  hwSupport += "AMCodec:no ";
+#endif
 #if defined(HAVE_LIBOPENMAX) && defined(_LINUX)
   hwSupport += "OpenMax:yes ";
 #elif defined(_LINUX)
@@ -176,14 +184,16 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, unsigne
 #endif
 
   CLog::Log(LOGDEBUG, "CDVDFactoryCodec: compiled in hardware support: %s", hwSupport.c_str());
-
+#if !defined(HAS_LIBAMCODEC)
   // dvd's have weird still-frames in it, which is not fully supported in ffmpeg
   if(hint.stills && (hint.codec == CODEC_ID_MPEG2VIDEO || hint.codec == CODEC_ID_MPEG1VIDEO))
   {
     if( (pCodec = OpenCodec(new CDVDVideoCodecLibMpeg2(), hint, options)) ) return pCodec;
   }
+#endif
+
 #if defined(HAVE_LIBVDADECODER)
-  if (!hint.software && g_guiSettings.GetBool("videoplayer.usevda"))
+  if (!hint.software && CSettings::Get().GetBool("videoplayer.usevda"))
   {
     if (g_sysinfo.HasVDADecoder())
     {
@@ -196,7 +206,7 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, unsigne
 #endif
 
 #if defined(HAVE_VIDEOTOOLBOXDECODER)
-  if (!hint.software && g_guiSettings.GetBool("videoplayer.usevideotoolbox"))
+  if (!hint.software && CSettings::Get().GetBool("videoplayer.usevideotoolbox"))
   {
     if (g_sysinfo.HasVideoToolBoxDecoder())
     {
@@ -215,7 +225,7 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, unsigne
 #endif
 
 #if defined(HAVE_LIBCRYSTALHD)
-  if (!hint.software && g_guiSettings.GetBool("videoplayer.usechd"))
+  if (!hint.software && CSettings::Get().GetBool("videoplayer.usechd"))
   {
     if (CCrystalHD::GetInstance()->DevicePresent())
     {
@@ -238,8 +248,16 @@ CDVDVideoCodec* CDVDFactoryCodec::CreateVideoCodec(CDVDStreamInfo &hint, unsigne
   }
 #endif
 
+#if defined(HAS_LIBAMCODEC)
+  if (!hint.software)
+  {
+    CLog::Log(LOGINFO, "Amlogic Video Decoder...");
+    if ( (pCodec = OpenCodec(new CDVDVideoCodecAmlogic(), hint, options)) ) return pCodec;
+  }
+#endif
+
 #if defined(HAVE_LIBOPENMAX)
-  if (g_guiSettings.GetBool("videoplayer.useomx") && !hint.software )
+  if (CSettings::Get().GetBool("videoplayer.useomx") && !hint.software )
   {
       if (hint.codec == CODEC_ID_H264 || hint.codec == CODEC_ID_MPEG2VIDEO || hint.codec == CODEC_ID_VC1)
     {

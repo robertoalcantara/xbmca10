@@ -23,6 +23,11 @@ SRCS += OpenMaxVideo.cpp
 SRCS += DVDVideoCodecOpenMax.cpp
 endif
 
+ifeq (@USE_LIBAMCODEC@,1)
+SRCS += AMLCodec.cpp
+SRCS += DVDVideoCodecAmlogic.cpp
+INCLUDES += -I$(prefix)/include/amlplayer
+endif
 SRCS += DVDVideoCodecA10.cpp
 
 LIB=Video.a

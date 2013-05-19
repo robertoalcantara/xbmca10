@@ -22,6 +22,8 @@
 #include "FileItem.h"
 #include "CurlFile.h"
 #include "settings/AdvancedSettings.h"
+#include "settings/MediaSettings.h"
+#include "settings/Settings.h"
 #include "utils/URIUtils.h"
 #include "utils/XBMCTinyXML.h"
 #include "utils/HTMLUtil.h"
@@ -30,7 +32,6 @@
 #include "music/tags/MusicInfoTag.h"
 #include "utils/log.h"
 #include "URL.h"
-#include "settings/GUISettings.h"
 #include "climits"
 #include "threads/SingleLock.h"
 
@@ -87,8 +88,7 @@ bool CRSSDirectory::ContainsFiles(const CStdString& strPath)
 
 static bool IsPathToMedia(const CStdString& strPath )
 {
-  CStdString extension;
-  URIUtils::GetExtension(strPath, extension);
+  CStdString extension = URIUtils::GetExtension(strPath);
 
   if (extension.IsEmpty())
     return false;
@@ -111,8 +111,7 @@ static bool IsPathToThumbnail(const CStdString& strPath )
 {
   // Currently just check if this is an image, maybe we will add some
   // other checks later
-  CStdString extension;
-  URIUtils::GetExtension(strPath, extension);
+  CStdString extension = URIUtils::GetExtension(strPath);
 
   if (extension.IsEmpty())
     return false;
@@ -491,7 +490,7 @@ static void ParseItem(CFileItem* item, TiXmlElement* root, const CStdString& pat
   else if(FindMime(resources, "image/"))
     mime = "image/";
 
-  int maxrate = g_guiSettings.GetInt("network.bandwidth");
+  int maxrate = CSettings::Get().GetInt("network.bandwidth");
   if(maxrate == 0)
     maxrate = INT_MAX;
 

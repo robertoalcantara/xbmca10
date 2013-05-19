@@ -14,7 +14,7 @@
 #include "guilib/WindowIDs.h"
 #include "music/tags/MusicInfoTag.h"
 #include "settings/AdvancedSettings.h"
-#include "settings/GUISettings.h"
+#include "settings/Settings.h"
 #include "utils/log.h"
 #include "utils/md5.h"
 #include "utils/StringUtils.h"
@@ -137,7 +137,7 @@ CUPnPServer::PropagateUpdates()
     string buffer;
     map<string,pair<bool, unsigned long> >::iterator itr;
 
-    if (m_scanning || !g_guiSettings.GetBool("services.upnpannounce"))
+    if (m_scanning || !CSettings::Get().GetBool("services.upnpannounce"))
         return;
 
     NPT_CHECK_LABEL(FindServiceById("urn:upnp-org:serviceId:ContentDirectory", service), failed);
@@ -272,7 +272,7 @@ CUPnPServer::Build(CFileItemPtr                  item,
 
                     if (params.GetSongId() >= 0 ) {
                         CSong song;
-                        if (db.GetSongById(params.GetSongId(), song))
+                        if (db.GetSong(params.GetSongId(), song))
                             item->GetMusicInfoTag()->SetSong(song);
                     }
                     else if (params.GetAlbumId() >= 0 ) {
@@ -472,6 +472,30 @@ static NPT_String TranslateWMPObjectId(NPT_String id)
     return id;
 }
 
+NPT_Result
+ObjectIDValidate(const NPT_String& id)
+{
+    if(id.Find("..") != -1)
+        return NPT_ERROR_NO_SUCH_FILE;
+    if(id.StartsWith("virtualpath://upnproot/"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("musicdb://"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("videodb://"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("library://video"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("sources://video"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("special://musicplaylists"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("special://profile/playlists"))
+        return NPT_SUCCESS;
+    else if(id.StartsWith("special://videoplaylists"))
+        return NPT_SUCCESS;
+    return NPT_ERROR_NO_SUCH_FILE;
+}
+
 /*----------------------------------------------------------------------
 |   CUPnPServer::OnBrowseMetadata
 +---------------------------------------------------------------------*/
@@ -497,6 +521,11 @@ CUPnPServer::OnBrowseMetadata(PLT_ActionReference&          action,
 
     CLog::Log(LOGINFO, "Received UPnP Browse Metadata request for object '%s'", (const char*)object_id);
 
+    if(NPT_FAILED(ObjectIDValidate(id))) {
+        action->SetError(701, "Incorrect ObjectID.");
+        return NPT_FAILURE;
+    }
+
     if (id.StartsWith("virtualpath://")) {
         id.TrimRight("/");
         if (id == "virtualpath://upnproot") {
@@ -505,6 +534,7 @@ CUPnPServer::OnBrowseMetadata(PLT_ActionReference&          action,
             item->SetLabel("Root");
             item->SetLabelPreformated(true);
             object = Build(item, true, context, thumb_loader);
+            object->m_ParentID = "-1";
         } else {
             return NPT_FAILURE;
         }
@@ -577,6 +607,11 @@ CUPnPServer::OnBrowseDirectChildren(PLT_ActionReference&          action,
 
     CLog::Log(LOGINFO, "UPnP: Received Browse DirectChildren request for object '%s', with sort criteria %s", object_id, sort_criteria);
 
+    if(NPT_FAILED(ObjectIDValidate(parent_id))) {
+        action->SetError(701, "Incorrect ObjectID.");
+        return NPT_FAILURE;
+    }
+
     items.SetPath(CStdString(parent_id));
 
     // guard against loading while saving to the same cache file
@@ -634,7 +669,7 @@ CUPnPServer::OnBrowseDirectChildren(PLT_ActionReference&          action,
       CVideoDatabase database;
       database.Open();
       if (database.HasContent(VIDEODB_CONTENT_MUSICVIDEOS)) {
-          CFileItemPtr mvideos(new CFileItem("videodb://3/", true));
+          CFileItemPtr mvideos(new CFileItem("library://video/musicvideos/", true));
           mvideos->SetLabel(g_localizeStrings.Get(20389));
           items.Add(mvideos);
       }
