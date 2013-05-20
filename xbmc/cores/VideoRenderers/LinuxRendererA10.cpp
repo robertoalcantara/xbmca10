@@ -37,7 +37,6 @@
 #include "settings/Settings.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/DisplaySettings.h"
-#include "settings/GUISettings.h"
 #include "settings/MediaSettings.h"
 #include "guilib/FrameBufferObject.h"
 #include "VideoShaders/YUV2RGBShader.h"
@@ -49,6 +48,7 @@
 #include "RenderCapture.h"
 #include "RenderFormats.h"
 #include "xbmc/Application.h"
+#include "cores/IPlayer.h"
 
 using namespace Shaders;
 
@@ -77,15 +77,23 @@ CLinuxRendererA10::CLinuxRendererA10()
   m_scalingMethod = VS_SCALINGMETHOD_LINEAR;
   m_scalingMethodGui = (ESCALINGMETHOD)-1;
 
+  // default texture handlers to YUV
+  m_textureUpload = &CLinuxRendererA10::UploadYV12Texture;
+  m_textureCreate = &CLinuxRendererA10::CreateYV12Texture;
+  m_textureDelete = &CLinuxRendererA10::DeleteYV12Texture;
+
 /* check if needed (import from LinuxRendererGLES.cpp) - rellla
-  m_fbo.width = 0.0;
-  m_fbo.height = 0.0;
   m_NumYV12Buffers = 0;
+  m_StrictBinding = false;
+*/
   m_iLastRenderBuffer = 0;
   m_bConfigured = false;
   m_bValidated = false;
   m_bImageReady = false;
   m_clearColour = 0.0f;
+/*
+  m_fbo.width = 0.0;
+  m_fbo.height = 0.0;
   m_pboSupported = false;
   m_pboUsed = false;
   m_nonLinStretch = false;
@@ -93,10 +101,6 @@ CLinuxRendererA10::CLinuxRendererA10()
   m_pixelRatio = 0.0f; 
 */
 
-  // default texture handlers to YUV
-  m_textureUpload = &CLinuxRendererA10::UploadYV12Texture;
-  m_textureCreate = &CLinuxRendererA10::CreateYV12Texture;
-  m_textureDelete = &CLinuxRendererA10::DeleteYV12Texture;
 
 }
 
@@ -171,6 +175,18 @@ bool CLinuxRendererA10::Configure(unsigned int width, unsigned int height, unsig
   m_RenderUpdateCallBackCtx = NULL;
   if ((m_format == RENDER_FMT_BYPASS) && g_application.GetCurrentPlayer())
   {
+    m_renderFeatures.clear();
+    m_scalingMethods.clear();
+    m_deinterlaceModes.clear();
+    m_deinterlaceMethods.clear();
+
+    if (m_RenderFeaturesCallBackFn)
+    {
+      (*m_RenderFeaturesCallBackFn)(m_RenderFeaturesCallBackCtx, m_renderFeatures);
+      // after setting up m_RenderFeatures, we are done with the callback
+      m_RenderFeaturesCallBackFn = NULL;
+      m_RenderFeaturesCallBackCtx = NULL;
+    }
     g_application.m_pPlayer->GetRenderFeatures(m_renderFeatures);
     g_application.m_pPlayer->GetDeinterlaceMethods(m_deinterlaceMethods);
     g_application.m_pPlayer->GetDeinterlaceModes(m_deinterlaceModes);
@@ -388,12 +404,21 @@ void CLinuxRendererA10::RenderUpdate(bool clear, DWORD flags, DWORD alpha)
     if (m_RenderUpdateCallBackFn)
       (*m_RenderUpdateCallBackFn)(m_RenderUpdateCallBackCtx, m_sourceRect, m_destRect);
 
+    RESOLUTION res = GetResolution();
+    int iWidth = CDisplaySettings::Get().GetResolutionInfo(res).iWidth;
+    int iHeight = CDisplaySettings::Get().GetResolutionInfo(res).iHeight;
+
     g_graphicsContext.BeginPaint();
 
+    glScissor(m_destRect.x1,
+              iHeight - m_destRect.y2,
+              m_destRect.x2 - m_destRect.x1,
+              m_destRect.y2 - m_destRect.y1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
+    glScissor(0, 0, iWidth, iHeight);
 
     g_graphicsContext.EndPaint();
     return;
@@ -586,7 +611,7 @@ void CLinuxRendererA10::UpdateVideoFilter()
 
 void CLinuxRendererA10::LoadShaders(int field)
 {
-  int requestedMethod = g_guiSettings.GetInt("videoplayer.rendermethod");
+  int requestedMethod = CSettings::Get().GetInt("videoplayer.rendermethod");
   CLog::Log(LOGDEBUG, "GL: Requested render method: %d", requestedMethod);
 
   if (m_pYUVShader)
@@ -617,7 +642,7 @@ void CLinuxRendererA10::LoadShaders(int field)
         UpdateVideoFilter();
         break;
       }
-      else
+      else if (m_pYUVShader)
       {
         m_pYUVShader->Free();
         delete m_pYUVShader;
@@ -672,6 +697,8 @@ void CLinuxRendererA10::UnInit()
   m_bConfigured = false;
   m_RenderUpdateCallBackFn = NULL;
   m_RenderUpdateCallBackCtx = NULL;
+  m_RenderFeaturesCallBackFn = NULL;
+  m_RenderFeaturesCallBackCtx = NULL;
 }
 
 inline void CLinuxRendererA10::ReorderDrawPoints()
@@ -905,16 +932,17 @@ void CLinuxRendererA10::RenderMultiPass(int index, int field)
     CLog::Log(LOGERROR, "GL: Error enabling YUV shader");
   }
 
-  float imgwidth  = planes[0].rect.x2 - planes[0].rect.x1;
-  float imgheight = planes[0].rect.y2 - planes[0].rect.y1;
-  if (m_textureTarget == GL_TEXTURE_2D)
-  {
-    imgwidth  *= planes[0].texwidth;
-    imgheight *= planes[0].texheight;
-  }
-
-  // 1st Pass to video frame size
+// 1st Pass to video frame size
 //TODO
+//  float imgwidth  = planes[0].rect.x2 - planes[0].rect.x1;
+//  float imgheight = planes[0].rect.y2 - planes[0].rect.y1;
+//  if (m_textureTarget == GL_TEXTURE_2D)
+//  {
+//    imgwidth  *= planes[0].texwidth;
+//    imgheight *= planes[0].texheight;
+//  }
+
+
 //  glBegin(GL_QUADS);
 //
 //  glMultiTexCoord2fARB(GL_TEXTURE0, planes[0].rect.x1, planes[0].rect.y1);
@@ -982,10 +1010,10 @@ void CLinuxRendererA10::RenderMultiPass(int index, int field)
 
   VerifyGLState();
 
-  imgwidth  /= m_sourceWidth;
-  imgheight /= m_sourceHeight;
-
 //TODO
+//   imgwidth /= m_sourceWidth;
+//   imgheight /= m_sourceHeight;
+//
 //  glBegin(GL_QUADS);
 //
 //  glMultiTexCoord2fARB(GL_TEXTURE0, 0.0f    , 0.0f);
@@ -1024,6 +1052,7 @@ bool CLinuxRendererA10::RenderCapture(CRenderCapture* capture)
 
   // new video rect is thumbnail size
   m_destRect.SetRect(0, 0, (float)capture->GetWidth(), (float)capture->GetHeight());
+  MarkDirty();
   syncDestRectToRotatedPoints();//syncs the changed destRect to m_rotatedDestCoords
   // clear framebuffer and invert Y axis to get non-inverted image
   glDisable(GL_BLEND);
@@ -1043,7 +1072,7 @@ bool CLinuxRendererA10::RenderCapture(CRenderCapture* capture)
   // OpenGLES returns in RGBA order but CRenderCapture needs BGRA order
   // XOR Swap RGBA -> BGRA
   unsigned char* pixels = (unsigned char*)capture->GetRenderBuffer();
-  for (int i = 0; i < capture->GetWidth() * capture->GetHeight(); i++, pixels+=4)
+  for (unsigned int i = 0; i < capture->GetWidth() * capture->GetHeight(); i++, pixels+=4)
   {
     std::swap(pixels[0], pixels[2]);
   }
@@ -1409,7 +1438,7 @@ EINTERLACEMETHOD CLinuxRendererA10::AutoInterlaceMethod()
   // Player controls render, let it pick the auto-deinterlace method
   if((m_renderMethod & RENDER_BYPASS))
   {
-    if (m_deinterlaceMethods.size())
+    if (m_deinterlaceMethods.empty())
       return ((EINTERLACEMETHOD)m_deinterlaceMethods[0]);
     else
       return VS_INTERLACEMETHOD_NONE;
