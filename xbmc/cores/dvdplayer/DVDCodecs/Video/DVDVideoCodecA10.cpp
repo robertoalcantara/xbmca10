@@ -68,6 +68,7 @@ CDVDVideoCodecA10::CDVDVideoCodecA10()
 CDVDVideoCodecA10::~CDVDVideoCodecA10()
 {
   Dispose();
+  A10VLExit();
 }
 
 /*
@@ -367,6 +368,10 @@ bool CDVDVideoCodecA10::DoOpen()
   m_nframes   = 0;
 
   CLog::Log(LOGDEBUG, "A10: cedar open.");
+
+  int width = 0, height = 0;
+  A10VLInit(width, height);
+
   return true;
 
 Error:

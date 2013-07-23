@@ -1578,6 +1578,13 @@ void A10VLExit()
     args[3] = 0;
     ioctl(g_hdisp, DISP_CMD_VIDEO_STOP, args);
 
+    args[0] = g_screenid;
+    args[1] = g_hlayer;
+    args[2] = 0;
+    args[3] = 0;
+    if (ioctl(g_hdisp, DISP_CMD_LAYER_BOTTOM, args))
+      CLog::Log(LOGERROR, "A10: DISP_CMD_LAYER_BOTTOM failed.\n");
+
     //close layer
     args[0] = g_screenid;
     args[1] = g_hlayer;
