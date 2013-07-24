@@ -1496,9 +1496,9 @@ bool A10VLInit(int &width, int &height, double &refreshRate)
     args[3] = 0;
     ioctl(g_hdisp, DISP_CMD_LAYER_GET_PARA, args);
     layera.mode = DISP_LAYER_WORK_MODE_SCALER;
-    layera.fb.mode = DISP_MOD_MB_UV_COMBINED;
-    layera.fb.format = DISP_FORMAT_YUV420;
-    layera.fb.seq = DISP_SEQ_UVUV;
+//    layera.fb.mode = DISP_MOD_MB_UV_COMBINED;
+//    layera.fb.format = DISP_FORMAT_YUV420;
+//    layera.fb.seq = DISP_SEQ_UVUV;
     args[0] = g_screenid;
     args[1] = g_syslayer;
     args[2] = (unsigned long) (&layera);
@@ -1524,9 +1524,9 @@ bool A10VLInit(int &width, int &height, double &refreshRate)
     layera.scn_win.width  = g_width;
     layera.scn_win.height = g_height;
     layera.mode = DISP_LAYER_WORK_MODE_NORMAL;
-    layera.fb.mode = DISP_MOD_MB_UV_COMBINED;
-    layera.fb.format = DISP_FORMAT_YUV420;
-    layera.fb.seq = DISP_SEQ_UVUV;
+//    layera.fb.mode = DISP_MOD_MB_UV_COMBINED;
+//    layera.fb.format = DISP_FORMAT_YUV420;
+//    layera.fb.seq = DISP_SEQ_UVUV;
     args[0] = g_screenid;
     args[1] = g_syslayer;
     args[2] = (unsigned long) (&layera);
