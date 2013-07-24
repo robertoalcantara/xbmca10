@@ -370,7 +370,8 @@ bool CDVDVideoCodecA10::DoOpen()
   CLog::Log(LOGDEBUG, "A10: cedar open.");
 
   int width = 0, height = 0;
-  A10VLInit(width, height);
+  double refreshRate = 0;
+  A10VLInit(width, height, refreshRate);
 
   return true;
 
