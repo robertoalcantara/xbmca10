@@ -20,6 +20,9 @@ static long g_cedaropen = 0;
 #define A10DEBUG
 #define MEDIAINFO
 
+extern void A10VLExit();
+extern bool A10VLInit(int &width, int &height, double &refreshRate);
+
 #define CODEC_OK        1
 #define CODEC_BAD       0
 
@@ -369,8 +372,8 @@ bool CDVDVideoCodecA10::DoOpen()
 
   CLog::Log(LOGDEBUG, "A10: cedar open.");
 
-  int width = 0, height = 0;
-  double refreshRate = 0;
+  int width, height;
+  static double refreshRate;
   A10VLInit(width, height, refreshRate);
 
   return true;
