@@ -79,6 +79,8 @@ CDVDVideoCodecA10::~CDVDVideoCodecA10()
  */
 bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
 {
+  s32 ret;
+
   if (getenv("NOA10"))
   {
     CLog::Log(LOGNOTICE, "A10: disabled.\n");
@@ -92,6 +94,8 @@ bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   }
 
   CLog::Log(LOGNOTICE, "A10: using hardware rendering.\n");
+
+  Dispose();
 
   m_hints  = hints;
   m_aspect = m_hints.aspect;
@@ -303,63 +307,6 @@ bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   CLog::Log(LOGNOTICE, "A10: CEDARV_SUBFORMAT: %d\n", m_info.sub_format);
   CLog::Log(LOGNOTICE, "A10: CEDARV_CONTAINERFORMAT: %d\n", m_info.container_format);
 
-  m_hcedarv = libcedarv_init(&ret);
-  if (ret < 0)
-  {
-    CLog::Log(LOGERROR, "A10: libcedarv_init failed. (%d)\n", ret);
-    return false;
-  }
-  else
-  {
-    CLog::Log(LOGDEBUG, "A10: cedar initialized");
-  }
-
-  ret = m_hcedarv->set_vstream_info(m_hcedarv, &m_info);
-  if (ret < 0)
-  {
-    CLog::Log(LOGERROR, "A10: set_vstream_info failed. (%d)\n", ret);
-    return false;
-  }
-  else
-  {
-    CLog::Log(LOGDEBUG, "A10: vstream_info set");
-  }
-
-  ret = m_hcedarv->open(m_hcedarv);
-  if (ret < 0)
-  {
-    CLog::Log(LOGERROR, "A10: open failed. (%d)\n", ret);
-    return false;
-  }
-  else
-  {
-    CLog::Log(LOGDEBUG, "A10: cedarv opened");
-  }
-
-  ret = m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_PLAY, 0);
-  if (ret < 0)
-  {
-    CLog::Log(LOGERROR, "A10: CEDARV_COMMAND_PLAY failed. (%d)\n", ret);
-    return false;
-  }
-  else
-  {
-    CLog::Log(LOGDEBUG, "A10: cedarv playing");
-  }
-
-  CLog::Log(LOGDEBUG, "A10: cedar open.");
-
-  int width, height;
-  static double refreshRate;
-  A10VLInit(width, height, refreshRate);
-
-  return true;
-}
-
-bool CDVDVideoCodecA10::DoOpen()
-{
-  s32 ret;
-
   if (cas(&g_cedaropen, 0, 1) != 0)
   {
     CLog::Log(LOGERROR, "A10: cedar already in use");
@@ -374,7 +321,7 @@ bool CDVDVideoCodecA10::DoOpen()
   if (ret < 0)
   {
     CLog::Log(LOGERROR, "A10: libcedarv_init failed. (%d)\n", ret);
-    goto Error;
+    return false;
   }
   else
   {
@@ -385,7 +332,7 @@ bool CDVDVideoCodecA10::DoOpen()
   if (ret < 0)
   {
     CLog::Log(LOGERROR, "A10: set_vstream_info failed. (%d)\n", ret);
-    goto Error;
+    return false;
   }
   else
   {
@@ -396,18 +343,20 @@ bool CDVDVideoCodecA10::DoOpen()
   if (ret < 0)
   {
     CLog::Log(LOGERROR, "A10: open failed. (%d)\n", ret);
-    goto Error;
+    return false;
   }
   else
   {
     CLog::Log(LOGDEBUG, "A10: cedarv opened");
   }
 
+  m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_RESET, 0);
+
   ret = m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_PLAY, 0);
   if (ret < 0)
   {
     CLog::Log(LOGERROR, "A10: CEDARV_COMMAND_PLAY failed. (%d)\n", ret);
-    goto Error;
+    return false;
   }
   else
   {
@@ -418,12 +367,12 @@ bool CDVDVideoCodecA10::DoOpen()
   m_nframes   = 0;
 
   CLog::Log(LOGDEBUG, "A10: cedar open.");
+
+  int width, height;
+  static double refreshRate;
+  A10VLInit(width, height, refreshRate);
+
   return true;
-
-Error:
-
-  Dispose();
-  return false;
 }
 
 /*
