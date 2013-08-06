@@ -303,7 +303,57 @@ bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   CLog::Log(LOGNOTICE, "A10: CEDARV_SUBFORMAT: %d\n", m_info.sub_format);
   CLog::Log(LOGNOTICE, "A10: CEDARV_CONTAINERFORMAT: %d\n", m_info.container_format);
 
-  return DoOpen();
+  m_hcedarv = libcedarv_init(&ret);
+  if (ret < 0)
+  {
+    CLog::Log(LOGERROR, "A10: libcedarv_init failed. (%d)\n", ret);
+    return false;
+  }
+  else
+  {
+    CLog::Log(LOGDEBUG, "A10: cedar initialized");
+  }
+
+  ret = m_hcedarv->set_vstream_info(m_hcedarv, &m_info);
+  if (ret < 0)
+  {
+    CLog::Log(LOGERROR, "A10: set_vstream_info failed. (%d)\n", ret);
+    return false;
+  }
+  else
+  {
+    CLog::Log(LOGDEBUG, "A10: vstream_info set");
+  }
+
+  ret = m_hcedarv->open(m_hcedarv);
+  if (ret < 0)
+  {
+    CLog::Log(LOGERROR, "A10: open failed. (%d)\n", ret);
+    return false;
+  }
+  else
+  {
+    CLog::Log(LOGDEBUG, "A10: cedarv opened");
+  }
+
+  ret = m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_PLAY, 0);
+  if (ret < 0)
+  {
+    CLog::Log(LOGERROR, "A10: CEDARV_COMMAND_PLAY failed. (%d)\n", ret);
+    return false;
+  }
+  else
+  {
+    CLog::Log(LOGDEBUG, "A10: cedarv playing");
+  }
+
+  CLog::Log(LOGDEBUG, "A10: cedar open.");
+
+  int width, height;
+  static double refreshRate;
+  A10VLInit(width, height, refreshRate);
+
+  return true;
 }
 
 bool CDVDVideoCodecA10::DoOpen()
@@ -353,9 +403,6 @@ bool CDVDVideoCodecA10::DoOpen()
     CLog::Log(LOGDEBUG, "A10: cedarv opened");
   }
 
-
-  m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_RESET, 0);
-
   ret = m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_PLAY, 0);
   if (ret < 0)
   {
@@ -371,11 +418,6 @@ bool CDVDVideoCodecA10::DoOpen()
   m_nframes   = 0;
 
   CLog::Log(LOGDEBUG, "A10: cedar open.");
-
-  int width, height;
-  static double refreshRate;
-  A10VLInit(width, height, refreshRate);
-
   return true;
 
 Error:
@@ -413,6 +455,9 @@ int CDVDVideoCodecA10::Decode(BYTE* pData, int iSize, double dts, double pts)
   u32                        bufsize0, bufsize1;
   cedarv_stream_data_info_t  dinf;
   cedarv_picture_t           picture;
+
+  if (!pData)
+    return VC_BUFFER;
 
   if (!m_hcedarv)
     return VC_ERROR;
@@ -488,7 +533,7 @@ int CDVDVideoCodecA10::Decode(BYTE* pData, int iSize, double dts, double pts)
     case CEDARV_RESULT_NO_FRAME_BUFFER:
       CLog::Log(LOGNOTICE, "A10: no frames. free queue.");
       A10VLFreeQueue();
-      //ret = m_hcedarv->decode(m_hcedarv);
+      m_hcedarv->decode(m_hcedarv);
       break;
 
     default:
@@ -547,7 +592,7 @@ void CDVDVideoCodecA10::Reset()
   cedarv_picture_t pict;
 
   CLog::Log(LOGDEBUG, "A10: reset requested");
-  m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_FLUSH, 0);
+  m_hcedarv->ioctrl(m_hcedarv, CEDARV_COMMAND_RESET, 0);
   while(m_hcedarv->display_request(m_hcedarv, &pict) == 0)
     m_hcedarv->display_release(m_hcedarv, pict.id);
   A10VLFreeQueue();
