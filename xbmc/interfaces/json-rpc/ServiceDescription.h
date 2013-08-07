@@ -1,7 +1,7 @@
 #pragma once
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 namespace JSONRPC
 {
   const char* const JSONRPC_SERVICE_ID          = "http://www.xbmc.org/jsonrpc/ServiceDescription.json";
-  const char* const JSONRPC_SERVICE_VERSION     = "6.5.1";
+  const char* const JSONRPC_SERVICE_VERSION     = "6.5.3";
   const char* const JSONRPC_SERVICE_DESCRIPTION = "JSON-RPC API of XBMC";
 
   const char* const JSONRPC_SERVICE_TYPES[] = {  
@@ -1110,7 +1110,7 @@ namespace JSONRPC
       "\"properties\": {"
         "\"file\": { \"type\": \"string\", \"required\": true },"
         "\"filetype\": { \"type\": \"string\", \"enum\": [ \"file\", \"directory\" ], \"required\": true },"
-        "\"size\": { \"type\": \"integer\", \"description\": \"Size of the file in kB (1000 Byte)\" },"
+        "\"size\": { \"type\": \"integer\", \"description\": \"Size of the file in bytes\" },"
         "\"lastmodified\": { \"type\": \"string\" },"
         "\"mimetype\": { \"type\": \"string\" }"
       "}"

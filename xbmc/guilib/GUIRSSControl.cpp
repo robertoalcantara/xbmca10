@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,11 +42,12 @@ CGUIRSSControl::CGUIRSSControl(int parentID, int controlID, float posX, float po
   m_pReader = NULL;
   m_rtl = false;
   m_stopped = false;
+  m_urlset = 1;
   ControlType = GUICONTROL_RSS;
 }
 
 CGUIRSSControl::CGUIRSSControl(const CGUIRSSControl &from)
-: CGUIControl(from),m_scrollInfo(from.m_scrollInfo)
+: CGUIControl(from),m_scrollInfo(from.m_scrollInfo), m_dirty(true)
 {
   m_label = from.m_label;
   m_headlineColor = from.m_headlineColor;
@@ -55,6 +56,7 @@ CGUIRSSControl::CGUIRSSControl(const CGUIRSSControl &from)
   m_pReader = NULL;
   m_rtl = from.m_rtl;
   m_stopped = from.m_stopped;
+  m_urlset = 1;
   ControlType = GUICONTROL_RSS;
 }
 
@@ -64,16 +66,6 @@ CGUIRSSControl::~CGUIRSSControl(void)
   if (m_pReader)
     m_pReader->SetObserver(NULL);
   m_pReader = NULL;
-}
-
-void CGUIRSSControl::SetUrls(const vector<string> &vecUrl, bool rtl)
-{
-  m_vecUrls = vecUrl;
-  m_rtl = rtl;
-  if (m_scrollInfo.pixelSpeed > 0 && rtl)
-    m_scrollInfo.pixelSpeed *= -1;
-  else if (m_scrollInfo.pixelSpeed < 0 && !rtl)
-    m_scrollInfo.pixelSpeed *= -1;
 }
 
 void CGUIRSSControl::OnFocus()
@@ -86,9 +78,9 @@ void CGUIRSSControl::OnUnFocus()
   m_stopped = false;
 }
 
-void CGUIRSSControl::SetIntervals(const vector<int>& vecIntervals)
+void CGUIRSSControl::SetUrlSet(const int urlset)
 {
-  m_vecIntervals = vecIntervals;
+  m_urlset = urlset;
 }
 
 bool CGUIRSSControl::UpdateColors()
@@ -97,27 +89,33 @@ bool CGUIRSSControl::UpdateColors()
   changed |= m_label.UpdateColors();
   changed |= m_headlineColor.Update();
   changed |= m_channelColor.Update();
-
   return changed;
 }
 
 void CGUIRSSControl::Process(unsigned int currentTime, CDirtyRegionList &dirtyregions)
 {
-  // TODO Proper processing which marks when its actually changed. Just mark always for now.
-  MarkDirtyRegion();
-
-  CGUIControl::Process(currentTime, dirtyregions);
-}
-
-void CGUIRSSControl::Render()
-{
-  // only render the control if they are enabled
+  bool dirty = false;
   if (CSettings::Get().GetBool("lookandfeel.enablerssfeeds") && CRssManager::Get().IsActive())
   {
     CSingleLock lock(m_criticalSection);
     // Create RSS background/worker thread if needed
     if (m_pReader == NULL)
     {
+
+      RssUrls::const_iterator iter = CRssManager::Get().GetUrls().find(m_urlset);
+      if (iter != CRssManager::Get().GetUrls().end())
+      {
+        m_rtl = iter->second.rtl;
+        m_vecUrls = iter->second.url;
+        m_vecIntervals = iter->second.interval;
+        if (m_scrollInfo.pixelSpeed > 0 && m_rtl)
+          m_scrollInfo.pixelSpeed *= -1;
+        else if (m_scrollInfo.pixelSpeed < 0 && !m_rtl)
+          m_scrollInfo.pixelSpeed *= -1;
+      }
+
+      dirty = true;
+
       if (CRssManager::Get().GetReader(GetID(), GetParentID(), this, m_pReader))
         m_scrollInfo.characterPos = m_pReader->m_SavedScrollPos;
       else
@@ -137,18 +135,40 @@ void CGUIRSSControl::Render()
       }
     }
 
+    if(m_dirty)
+      dirty = true;
+    m_dirty = false;
+
+    if (m_label.font)
+    {
+      if ( m_stopped )
+        m_scrollInfo.SetSpeed(0);
+      else
+        m_scrollInfo.SetSpeed(m_label.scrollSpeed);
+
+      if(m_label.font->UpdateScrollInfo(m_feed, m_scrollInfo))
+        dirty = true;
+    }
+  }
+
+  if(dirty)
+    MarkDirtyRegion();
+
+  CGUIControl::Process(currentTime, dirtyregions);
+}
+
+void CGUIRSSControl::Render()
+{
+  // only render the control if they are enabled
+  if (CSettings::Get().GetBool("lookandfeel.enablerssfeeds") && CRssManager::Get().IsActive())
+  {
+
     if (m_label.font)
     {
       vecColors colors;
       colors.push_back(m_label.textColor);
       colors.push_back(m_headlineColor);
       colors.push_back(m_channelColor);
-
-      if ( m_stopped )
-        m_scrollInfo.SetSpeed(0);
-      else
-        m_scrollInfo.SetSpeed(m_label.scrollSpeed);
-
       m_label.font->DrawScrollingText(m_posX, m_posY, colors, m_label.shadowColor, m_feed, 0, m_width, m_scrollInfo);
     }
 
@@ -172,6 +192,7 @@ void CGUIRSSControl::OnFeedUpdate(const vecText &feed)
 {
   CSingleLock lock(m_criticalSection);
   m_feed = feed;
+  m_dirty = true;
 }
 
 void CGUIRSSControl::OnFeedRelease()

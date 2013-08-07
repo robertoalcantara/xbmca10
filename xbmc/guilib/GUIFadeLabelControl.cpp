@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -146,6 +146,9 @@ void CGUIFadeLabelControl::Process(unsigned int currentTime, CDirtyRegionList &d
         m_fadeAnim.QueueAnimation(ANIM_PROCESS_REVERSE);
       }
     }
+
+    m_textLayout.UpdateScrollinfo(m_scrollInfo);
+
     g_graphicsContext.RemoveTransform();
   }
 

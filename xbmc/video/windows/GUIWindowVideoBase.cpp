@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -102,7 +102,6 @@ CGUIWindowVideoBase::CGUIWindowVideoBase(int id, const CStdString &xmlFile)
     : CGUIMediaWindow(id, xmlFile)
 {
   m_thumbLoader.SetObserver(this);
-  m_thumbLoader.SetStreamDetailsObserver(this);
   m_stackingAvailable = true;
 }
 
@@ -215,7 +214,7 @@ bool CGUIWindowVideoBase::OnMessage(CGUIMessage& message)
         {
           return OnInfo(iItem);
         }
-        else if (iAction == ACTION_PLAYER_PLAY && !g_application.IsPlayingVideo())
+        else if (iAction == ACTION_PLAYER_PLAY && !g_application.m_pPlayer->IsPlayingVideo())
         {
           return OnResumeItem(iItem);
         }
@@ -286,7 +285,7 @@ void CGUIWindowVideoBase::OnInfo(CFileItem* pItem, const ADDON::ScraperPtr& scra
     return;
 
   if (pItem->IsParentFolder() || pItem->m_bIsShareOrDrive || pItem->GetPath().Equals("add") ||
-     (pItem->IsPlayList() && !URIUtils::GetExtension(pItem->GetPath()).Equals(".strm")))
+     (pItem->IsPlayList() && !URIUtils::HasExtension(pItem->GetPath(), ".strm")))
     return;
 
   // ShowIMDB can kill the item as this window can be closed while we do it,
@@ -993,7 +992,7 @@ bool CGUIWindowVideoBase::OnInfo(int iItem)
   CFileItemPtr item = m_vecItems->Get(iItem);
 
   if (item->GetPath().Equals("add") || item->IsParentFolder() ||
-     (item->IsPlayList() && !URIUtils::GetExtension(item->GetPath()).Equals(".strm")))
+     (item->IsPlayList() && !URIUtils::HasExtension(item->GetPath(), ".strm")))
     return false;
 
   if (!m_vecItems->IsPlugin() && (item->IsPlugin() || item->IsScript()))
@@ -1094,9 +1093,7 @@ bool CGUIWindowVideoBase::ShowPlaySelection(CFileItemPtr& item)
     }
   }
 
-  CStdString ext = URIUtils::GetExtension(item->GetPath());
-  ext.ToLower();
-  if (ext == ".iso" ||  ext == ".img")
+  if (URIUtils::HasExtension(item->GetPath(), ".iso|.img"))
   {
     CURL url2("udf://");
     url2.SetHostName(item->GetPath());
@@ -1191,20 +1188,6 @@ bool CGUIWindowVideoBase::OnResumeItem(int iItem)
   }
 
   return OnFileAction(iItem, SELECT_ACTION_PLAY);
-}
-
-void CGUIWindowVideoBase::OnStreamDetails(const CStreamDetails &details, const CStdString &strFileName, long lFileId)
-{
-  CVideoDatabase db;
-  if (db.Open())
-  {
-    if (lFileId < 0)
-      db.SetStreamDetailsForFile(details, strFileName);
-    else
-      db.SetStreamDetailsForFileId(details, lFileId);
-
-    db.Close();
-  }
 }
 
 void CGUIWindowVideoBase::GetContextButtons(int itemNumber, CContextButtons &buttons)
@@ -1549,12 +1532,12 @@ bool CGUIWindowVideoBase::OnPlayMedia(int iItem)
 
           CFileItemList items;
           CDirectory::GetDirectory(dir, items);
-          items.Sort(SORT_METHOD_FILE, SortOrderAscending);
+          items.Sort(SortByFile, SortOrderAscending);
 
           vector<int> stack;
           for (int i = 0; i < items.Size(); ++i)
           {
-            if (URIUtils::GetExtension(items[i]->GetPath()) == ext)
+            if (URIUtils::HasExtension(items[i]->GetPath(), ext))
               stack.push_back(i);
           }
 
@@ -1621,7 +1604,7 @@ void CGUIWindowVideoBase::PlayMovie(const CFileItem *item)
   // play movie...
   g_playlistPlayer.Play(0);
 
-  if(!g_application.IsPlayingVideo())
+  if(!g_application.m_pPlayer->IsPlayingVideo())
     m_thumbLoader.Load(*m_vecItems);
 }
 
@@ -2160,7 +2143,7 @@ void CGUIWindowVideoBase::AppendAndClearSearchItems(CFileItemList &searchItems, 
   if (!searchItems.Size())
     return;
 
-  searchItems.Sort(CSettings::Get().GetBool("filelists.ignorethewhensorting") ? SORT_METHOD_LABEL_IGNORE_THE : SORT_METHOD_LABEL, SortOrderAscending);
+  searchItems.Sort(SortByLabel, SortOrderAscending, CSettings::Get().GetBool("filelists.ignorethewhensorting") ? SortAttributeIgnoreArticle : SortAttributeNone);
   for (int i = 0; i < searchItems.Size(); i++)
     searchItems[i]->SetLabel(prependLabel + searchItems[i]->GetLabel());
   results.Append(searchItems);

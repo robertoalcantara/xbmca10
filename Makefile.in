@@ -49,6 +49,7 @@ DIRECTORY_ARCHIVES=$(DVDPLAYER_ARCHIVES) \
                    xbmc/filesystem/filesystem.a \
                    xbmc/guilib/guilib.a \
                    xbmc/input/input.a \
+                   xbmc/interfaces/generic/interfaces-generic.a \
                    xbmc/interfaces/info/info.a \
                    xbmc/interfaces/interfaces.a \
                    xbmc/interfaces/json-rpc/json-rpc.a \
@@ -93,10 +94,6 @@ DIRECTORY_ARCHIVES=$(DVDPLAYER_ARCHIVES) \
                    xbmc/windows/windows.a \
                    xbmc/xbmc.a \
 
-ifneq (@USE_LIBXBMC@,1)
-DIRECTORY_ARCHIVES +=xbmc/main/main.a
-endif
-
 NWAOBJSXBMC=	xbmc/threads/threads.a \
 		xbmc/commons/commons.a
 
@@ -121,6 +118,10 @@ endif
 ifeq (@USE_UPNP@,1)
 DIRECTORY_ARCHIVES += lib/libUPnP/libupnp.a \
                       xbmc/network/upnp/upnp.a
+endif
+
+ifeq (@USE_MDNSEMBEDDED@,1)
+DIRECTORY_ARCHIVES += xbmc/network/mdns/mdns.a
 endif
 
 ifeq ($(findstring osx,@ARCH@),osx)
@@ -174,6 +175,10 @@ ifeq (@USE_OMXPLAYER@,1)
 DIRECTORY_ARCHIVES += xbmc/cores/omxplayer/omxplayer.a
 endif
 
+ifeq (@USE_LIBAV_HACKS@,1)
+DIRECTORY_ARCHIVES += lib/xbmc-libav-hacks/dll-libavhacks.a
+endif
+
 PAPCODECS_DIRS= \
 	lib/xbadpcm \
 	lib/nosefart \
@@ -222,6 +227,7 @@ endif
 
 LIBADDON_DIRS=\
 	lib/addons/library.xbmc.addon \
+	lib/addons/library.xbmc.codec \
 	lib/addons/library.xbmc.pvr \
 	lib/addons/library.xbmc.gui \
 
@@ -234,7 +240,7 @@ SKIN_DIRS+=$(TOUCHED_MEDIA)
 endif
 
 DIRS= $(BIN_DIRS) $(EC_DIRS) $(XBMCTEX_DIRS) $(DVDPCODECS_DIRS) $(PAPCODECS_DIRS) \
-	$(LIB_DIRS) $(SS_DIRS) $(VIS_DIRS) $(LIBADDON_DIRS) $(SKIN_DIRS)
+	$(LIB_DIRS) $(SS_DIRS) $(VIS_DIRS) $(LIBADDON_DIRS) $(SKIN_DIRS) xbmc/main
 
 LIBS=@LIBS@
 CFLAGS=@CFLAGS@
@@ -351,6 +357,7 @@ screensavers: $(SS_DIRS)
 
 libaddon: exports
 	$(MAKE) -C lib/addons/library.xbmc.addon
+	$(MAKE) -C lib/addons/library.xbmc.codec
 	$(MAKE) -C lib/addons/library.xbmc.gui
 	$(MAKE) -C lib/addons/library.xbmc.pvr
 dvdpcodecs: dllloader
@@ -438,6 +445,25 @@ ifneq (@USE_LIBXBMC@,1)
 MAINOBJS+=xbmc/main/main.o
 endif
 
+# sync these entries manually with tools/depends/target/xbmc-addon-bindings/Makefile
+BINDINGS =xbmc/addons/include/xbmc_addon_cpp_dll.h
+BINDINGS+=xbmc/addons/include/xbmc_addon_dll.h
+BINDINGS+=xbmc/addons/include/xbmc_addon_types.h
+BINDINGS+=xbmc/addons/include/xbmc_codec_types.h
+BINDINGS+=xbmc/addons/include/xbmc_epg_types.h
+BINDINGS+=xbmc/addons/include/xbmc_pvr_dll.h
+BINDINGS+=xbmc/addons/include/xbmc_pvr_types.h
+BINDINGS+=xbmc/addons/include/xbmc_scr_dll.h
+BINDINGS+=xbmc/addons/include/xbmc_scr_types.h
+BINDINGS+=xbmc/addons/include/xbmc_vis_dll.h
+BINDINGS+=xbmc/addons/include/xbmc_vis_types.h
+BINDINGS+=xbmc/addons/include/xbmc_stream_utils.hpp
+BINDINGS+=addons/library.xbmc.addon/libXBMC_addon.h
+BINDINGS+=addons/library.xbmc.gui/libXBMC_gui.h
+BINDINGS+=addons/library.xbmc.pvr/libXBMC_pvr.h
+BINDINGS+=addons/library.xbmc.codec/libXBMC_codec.h
+BINDINGS+=xbmc/cores/dvdplayer/DVDDemuxers/DVDDemuxPacket.h
+
 libxbmc.so: $(OBJSXBMC) $(DYNOBJSXBMC) $(NWAOBJSXBMC) $(MAINOBJS)
 ifeq ($(findstring osx,@ARCH@), osx)
 	$(SILENT_LD) $(CXX) $(LDFLAGS) -bundle -o $@ -Wl,-all_load,-ObjC $(DYNOBJSXBMC) $(NWAOBJSXBMC) $(OBJSXBMC) $(LIBS)
@@ -445,7 +471,10 @@ else
 	$(SILENT_LD) $(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(MAINOBJS) -Wl,--start-group $(DYNOBJSXBMC) $(OBJSXBMC) -Wl,--end-group -Wl,--no-undefined $(NWAOBJSXBMC) $(LIBS)
 endif
 
-xbmc.bin: $(OBJSXBMC) $(DYNOBJSXBMC) $(NWAOBJSXBMC) $(MAINOBJS)
+xbmc/main/main.a:
+	$(MAKE) -C xbmc/main
+
+xbmc.bin: $(OBJSXBMC) $(DYNOBJSXBMC) $(NWAOBJSXBMC) $(MAINOBJS) xbmc/main/main.a
 
 ifeq ($(findstring osx,@ARCH@), osx)
 	$(SILENT_LD) $(CXX) $(LDFLAGS) -o xbmc.bin -Wl,-all_load,-ObjC $(DYNOBJSXBMC) $(NWAOBJSXBMC) $(OBJSXBMC) $(LIBS) -rdynamic
@@ -562,6 +591,12 @@ endif
 	@install -d $(DESTDIR)$(datadir)/icons/hicolor/256x256/apps
 	@install -m 0644 media/icon.png $(DESTDIR)$(datadir)/icons/hicolor/256x256/apps/xbmc.png
 	@test -z "$(DESTDIR)" && gtk-update-icon-cache -f -q -t $(datadir)/icons/hicolor || :
+
+	@echo "Copying bindings to $(DESTDIR)$(includedir)/xbmc"
+	@install -d $(DESTDIR)$(includedir)/xbmc
+	@for f in $(BINDINGS); do \
+	  install -m 0644 $$f $(DESTDIR)$(includedir)/xbmc ; \
+	done
 
 uninstall:
 	@echo "Removing XBMC..."

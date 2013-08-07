@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2012 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -74,6 +74,7 @@
 #endif
 
 #include "settings/AdvancedSettings.h"
+#include "settings/Setting.h"
 #include "settings/Settings.h"
 #include "utils/log.h"
 #include "utils/RssManager.h"
@@ -215,15 +216,26 @@ bool CNetworkServices::OnSettingChanging(const CSetting *setting)
         return false;
       }
 
+#ifdef HAS_AIRTUNES
       if (!StartAirTunesServer())
       {
         CGUIDialogOK::ShowAndGetInput(g_localizeStrings.Get(1274), "", g_localizeStrings.Get(33100), "");
         return false;
       }
+#endif //HAS_AIRTUNES
     }
     else
     {
-      if (!StopAirPlayServer(true) || !StopAirTunesServer(true))
+      bool ret = true;
+#ifdef HAS_AIRTUNES
+      if (!StopAirTunesServer(true))
+        ret = false;
+#endif //HAS_AIRTUNES
+      
+      if (!StopAirPlayServer(true))
+        ret = false;
+
+      if (!ret)
         return false;
     }
   }
@@ -728,7 +740,6 @@ bool CNetworkServices::StartUPnP()
   ret |= StartUPnPClient();
   ret |= StartUPnPServer();
   ret |= StartUPnPRenderer();
-    return true;
 #endif // HAS_UPNP
   return ret;
 }

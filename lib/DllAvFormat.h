@@ -37,11 +37,7 @@ extern "C" {
 #pragma warning(disable:4244)
 #endif
 #if (defined USE_EXTERNAL_FFMPEG)
-  #if (defined HAVE_LIBAVFORMAT_AVFORMAT_H)
-    #include <libavformat/avformat.h>
-  #else
-    #include <ffmpeg/avformat.h>
-  #endif
+  #include <libavformat/avformat.h>
   /* xbmc_read_frame_flush() is defined for us in lib/xbmc-dll-symbols/DllAvFormat.c */
   void xbmc_read_frame_flush(AVFormatContext *s);
 #else
@@ -56,6 +52,10 @@ extern "C" {
 /* Flag introduced without a version bump */
 #ifndef AVSEEK_FORCE
 #define AVSEEK_FORCE 0x20000
+#endif
+
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(55,12,100)
+#define AVFORMAT_HAS_STREAM_GET_R_FRAME_RATE
 #endif
 
 typedef int64_t offset_t;
@@ -98,11 +98,15 @@ public:
   virtual void avio_wb32(AVIOContext *s, unsigned int val)=0;
   virtual void avio_wb16(AVIOContext *s, unsigned int val)=0;
   virtual AVFormatContext *avformat_alloc_context(void)=0;
+  virtual int avformat_alloc_output_context2(AVFormatContext **ctx, AVOutputFormat *oformat, const char *format_name, const char *filename) = 0;
   virtual AVStream *avformat_new_stream(AVFormatContext *s, AVCodec *c)=0;
   virtual AVOutputFormat *av_guess_format(const char *short_name, const char *filename, const char *mime_type)=0;
   virtual int avformat_write_header (AVFormatContext *s, AVDictionary **options)=0;
   virtual int av_write_trailer(AVFormatContext *s)=0;
   virtual int av_write_frame  (AVFormatContext *s, AVPacket *pkt)=0;
+#if defined(AVFORMAT_HAS_STREAM_GET_R_FRAME_RATE)
+  virtual AVRational av_stream_get_r_frame_rate(const AVStream *s)=0;
+#endif
 };
 
 #if (defined USE_EXTERNAL_FFMPEG) || (defined TARGET_DARWIN) 
@@ -154,11 +158,15 @@ public:
   virtual void avio_wb32(AVIOContext *s, unsigned int val) { ::avio_wb32(s, val); }
   virtual void avio_wb16(AVIOContext *s, unsigned int val) { ::avio_wb16(s, val); }
   virtual AVFormatContext *avformat_alloc_context() { return ::avformat_alloc_context(); }
+  virtual int avformat_alloc_output_context2(AVFormatContext **ctx, AVOutputFormat *oformat, const char *format_name, const char *filename){ return ::avformat_alloc_output_context2(ctx,oformat,format_name,filename); }
   virtual AVStream *avformat_new_stream(AVFormatContext *s, AVCodec *c) { return ::avformat_new_stream(s, c); }
   virtual AVOutputFormat *av_guess_format(const char *short_name, const char *filename, const char *mime_type) { return ::av_guess_format(short_name, filename, mime_type); }
   virtual int avformat_write_header (AVFormatContext *s, AVDictionary **options) { return ::avformat_write_header (s, options); }
   virtual int av_write_trailer(AVFormatContext *s) { return ::av_write_trailer(s); }
   virtual int av_write_frame  (AVFormatContext *s, AVPacket *pkt) { return ::av_write_frame(s, pkt); }
+#if defined(AVFORMAT_HAS_STREAM_GET_R_FRAME_RATE)
+  virtual AVRational av_stream_get_r_frame_rate(const AVStream *s) { return ::av_stream_get_r_frame_rate(s); }
+#endif
 
   // DLL faking.
   virtual bool ResolveExports() { return true; }
@@ -221,11 +229,15 @@ class DllAvFormat : public DllDynamic, DllAvFormatInterface
   DEFINE_METHOD2(int, avio_close_dyn_buf, (AVIOContext *p1, uint8_t **p2))
   DEFINE_METHOD3(offset_t, avio_seek, (AVIOContext *p1, offset_t p2, int p3))
   DEFINE_METHOD0(AVFormatContext *, avformat_alloc_context)
+  DEFINE_METHOD4(int, avformat_alloc_output_context2, (AVFormatContext **p1, AVOutputFormat *p2, const char *p3, const char *p4))
   DEFINE_METHOD2(AVStream *, avformat_new_stream, (AVFormatContext *p1, AVCodec *p2))
   DEFINE_METHOD3(AVOutputFormat *, av_guess_format, (const char *p1, const char *p2, const char *p3))
   DEFINE_METHOD2(int, avformat_write_header , (AVFormatContext *p1, AVDictionary **p2))
   DEFINE_METHOD1(int, av_write_trailer, (AVFormatContext *p1))
   DEFINE_METHOD2(int, av_write_frame  , (AVFormatContext *p1, AVPacket *p2))
+#if defined(AVFORMAT_HAS_STREAM_GET_R_FRAME_RATE)
+  DEFINE_METHOD1(AVRational, av_stream_get_r_frame_rate, (const AVStream *p1))
+#endif
   BEGIN_METHOD_RESOLVE()
     RESOLVE_METHOD_RENAME(av_register_all, av_register_all_dont_call)
     RESOLVE_METHOD_RENAME(avformat_network_init,   avformat_network_init_dont_call)
@@ -256,11 +268,15 @@ class DllAvFormat : public DllDynamic, DllAvFormatInterface
     RESOLVE_METHOD(avio_wb32)
     RESOLVE_METHOD(avio_wb16)
     RESOLVE_METHOD(avformat_alloc_context)
+    RESOLVE_METHOD(avformat_alloc_output_context2)
     RESOLVE_METHOD(avformat_new_stream)
     RESOLVE_METHOD(av_guess_format)
     RESOLVE_METHOD(avformat_write_header)
     RESOLVE_METHOD(av_write_trailer)
     RESOLVE_METHOD(av_write_frame)
+#if defined(AVFORMAT_HAS_STREAM_GET_R_FRAME_RATE)
+    RESOLVE_METHOD(av_stream_get_r_frame_rate)
+#endif
   END_METHOD_RESOLVE()
 
   /* dependencies of libavformat */

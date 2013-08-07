@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,9 +31,7 @@
 #include "dialogs/GUIDialogMediaSource.h"
 #include "GUIPassword.h"
 #include "GUIUserMessages.h"
-#ifdef HAS_PYTHON
-#include "interfaces/python/XBPython.h"
-#endif
+#include "interfaces/generic/ScriptInvocationManager.h"
 #include "pictures/GUIWindowSlideShow.h"
 #include "playlists/PlayListFactory.h"
 #include "network/Network.h"
@@ -44,7 +42,7 @@
 #include "guilib/GUIKeyboardFactory.h"
 #include "dialogs/GUIDialogProgress.h"
 #include "dialogs/GUIDialogExtendedProgressBar.h"
-#include "Favourites.h"
+#include "filesystem/FavouritesDirectory.h"
 #include "playlists/PlayList.h"
 #include "utils/AsyncFileCopy.h"
 #include "storage/MediaManager.h"
@@ -354,7 +352,7 @@ void CGUIWindowFileManager::OnSort(int iList)
 
   }
 
-  m_vecItems[iList]->Sort(SORT_METHOD_LABEL, SortOrderAscending);
+  m_vecItems[iList]->Sort(SortByLabel, SortOrderAscending);
 }
 
 void CGUIWindowFileManager::ClearFileItems(int iList)
@@ -496,7 +494,7 @@ bool CGUIWindowFileManager::Update(int iList, const CStdString &strDirectory)
   {
     CFileItemPtr pItem = m_vecItems[iList]->Get(i);
     if (pItem->IsHD() &&
-        URIUtils::GetExtension(pItem->GetPath()).CompareNoCase(".tbn") == 0)
+        URIUtils::HasExtension(pItem->GetPath(), ".tbn"))
     {
       pItem->SetArt("thumb", pItem->GetPath());
     }
@@ -619,7 +617,7 @@ void CGUIWindowFileManager::OnStart(CFileItem *pItem)
 #ifdef HAS_PYTHON
   if (pItem->IsPythonScript())
   {
-    g_pythonParser.evalFile(pItem->GetPath().c_str(),ADDON::AddonPtr());
+    CScriptInvocationManager::Get().Execute(pItem->GetPath());
     return ;
   }
 #endif
@@ -628,7 +626,7 @@ void CGUIWindowFileManager::OnStart(CFileItem *pItem)
     CGUIWindowSlideShow *pSlideShow = (CGUIWindowSlideShow *)g_windowManager.GetWindow(WINDOW_SLIDESHOW);
     if (!pSlideShow)
       return ;
-    if (g_application.IsPlayingVideo())
+    if (g_application.m_pPlayer->IsPlayingVideo())
       g_application.StopPlaying();
 
     pSlideShow->Reset();
@@ -989,9 +987,12 @@ void CGUIWindowFileManager::OnPopupMenu(int list, int item, bool bContextDriven 
   CContextButtons choices;
   if (item >= 0)
   {
-    choices.Add(1, 188); // SelectAll
+    //The ".." item is not selectable. Take that into account when figuring out if all items are selected
+    int notSelectable = CSettings::Get().GetBool("filelists.showparentdiritems") ? 1 : 0;
+    if (NumSelected(list) <  m_vecItems[list]->Size() - notSelectable)
+      choices.Add(1, 188); // SelectAll
     if (!pItem->IsParentFolder())
-      choices.Add(2, CFavourites::IsFavourite(pItem.get(), GetID()) ? 14077 : 14076); // Add/Remove Favourite
+      choices.Add(2,  XFILE::CFavouritesDirectory::IsFavourite(pItem.get(), GetID()) ? 14077 : 14076); // Add/Remove Favourite
     if (vecCores.size() > 1)
       choices.Add(3, 15213); // Play Using...
     if (CanRename(list) && !pItem->IsParentFolder())
@@ -1007,7 +1008,6 @@ void CGUIWindowFileManager::OnPopupMenu(int list, int item, bool bContextDriven 
     choices.Add(8, 20309); // New Folder
   if (item >= 0 && pItem->m_bIsFolder && !pItem->IsParentFolder())
     choices.Add(9, 13393); // Calculate Size
-  choices.Add(10, 5);     // Settings
   choices.Add(11, 20128); // Go To Root
   choices.Add(12, 523);     // switch media
   if (CJobManager::GetInstance().IsProcessing("filemanager"))
@@ -1021,7 +1021,7 @@ void CGUIWindowFileManager::OnPopupMenu(int list, int item, bool bContextDriven 
   }
   if (btnid == 2)
   {
-    CFavourites::AddOrRemove(pItem.get(), GetID());
+    XFILE::CFavouritesDirectory::AddOrRemove(pItem.get(), GetID());
     return;
   }
   if (btnid == 3)
@@ -1073,11 +1073,6 @@ void CGUIWindowFileManager::OnPopupMenu(int list, int item, bool bContextDriven 
     }
     if (progress)
       progress->Close();
-  }
-  if (btnid == 10)
-  {
-    g_windowManager.ActivateWindow(WINDOW_SETTINGS_MENU);
-    return;
   }
   if (btnid == 11)
   {

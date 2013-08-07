@@ -2,7 +2,7 @@
 
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ class COpenMax;
 class COpenMaxVideo;
 struct OpenMaxVideoBuffer;
 struct A10VLQueueItem;
+class CStageFrightVideo;
+typedef void* EGLImageKHR;
 
 // should be entirely filled by all codecs
 struct DVDVideoPicture
@@ -49,7 +51,7 @@ struct DVDVideoPicture
   union
   {
     struct {
-      BYTE* data[4];      // [4] = alpha channel, currently not used
+      uint8_t* data[4];      // [4] = alpha channel, currently not used
       int iLineSize[4];   // [4] = alpha channel, currently not used
     };
     struct {
@@ -74,6 +76,11 @@ struct DVDVideoPicture
     struct {
       A10VLQueueItem *a10buffer;
     };
+
+    struct {
+      CStageFrightVideo* stf;
+      EGLImageKHR eglimg;
+    };
   };
 
   unsigned int iFlags;
@@ -87,7 +94,7 @@ struct DVDVideoPicture
   unsigned int color_primaries;
   unsigned int color_transfer;
   unsigned int extended_format;
-  int iGroupId;
+  char         stereo_mode[32];
 
   int8_t* qscale_table; // Quantization parameters, primarily used by filters
   int qscale_stride;
@@ -103,7 +110,7 @@ struct DVDVideoPicture
 
 struct DVDVideoUserData
 {
-  BYTE* data;
+  uint8_t* data;
   int size;
 };
 
@@ -153,7 +160,7 @@ public:
    * returns one or a combination of VC_ messages
    * pData and iSize can be NULL, this means we should flush the rest of the data.
    */
-  virtual int Decode(BYTE* pData, int iSize, double dts, double pts) = 0;
+  virtual int Decode(uint8_t* pData, int iSize, double dts, double pts) = 0;
 
  /*
    * Reset the decoder.
@@ -248,4 +255,11 @@ public:
   {
     return 0;
   }
+
+
+  /**
+   * Number of references to old pictures that are allowed to
+   * be retained when calling decode on the next demux packet
+   */
+  virtual unsigned GetAllowedReferences() { return 0; }
 };

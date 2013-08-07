@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1624,6 +1624,17 @@ void CWinSystemOSX::CheckDisplayChanging(u_int32_t flags)
 void* CWinSystemOSX::GetCGLContextObj()
 {
   return [(NSOpenGLContext*)m_glContext CGLContextObj];
+}
+
+std::string CWinSystemOSX::GetClipboardText(void)
+{
+  std::string utf8_text;
+
+  const char *szStr = Cocoa_Paste();
+  if (szStr)
+    utf8_text = szStr;
+
+  return utf8_text;
 }
 
 #endif

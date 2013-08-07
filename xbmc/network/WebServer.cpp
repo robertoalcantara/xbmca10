@@ -1,6 +1,6 @@
 /*
  *      Copyright (C) 2005-2013 Team XBMC
- *      http://www.xbmc.org
+ *      http://xbmc.org
  *
  *  This Program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 
 //#define WEBSERVER_DEBUG
 
-#ifdef _WIN32
+#ifdef TARGET_WINDOWS
 #pragma comment(lib, "libmicrohttpd.dll.lib")
 #endif
 
@@ -662,7 +662,7 @@ int CWebServer::ContentReaderCallback(void *cls, size_t pos, char *buf, int max)
   {
     // put together the end-boundary
     string endBoundary = "\r\n--" + context->boundary + "--";
-    if (max != endBoundary.size())
+    if ((unsigned int)max != endBoundary.size())
       return -1;
 
     // copy the boundary into the buffer
@@ -786,7 +786,7 @@ bool CWebServer::Start(int port, const string &username, const string &password)
   if (!m_running)
   {
     int v6testSock;
-    if ((v6testSock = socket(AF_INET6, SOCK_STREAM, 0)) > 0)
+    if ((v6testSock = socket(AF_INET6, SOCK_STREAM, 0)) >= 0)
     {
       closesocket(v6testSock);
       m_daemon_ip6 = StartMHD(MHD_USE_IPv6, port);
@@ -838,17 +838,7 @@ void CWebServer::SetCredentials(const string &username, const string &password)
 
 bool CWebServer::PrepareDownload(const char *path, CVariant &details, std::string &protocol)
 {
-  bool exists = false;
-  CFile *file = new CFile();
-  if (file->Open(path))
-  {
-    exists = true;
-    file->Close();
-  }
-
-  delete file;
-
-  if (exists)
+  if (CFile::Exists(path))
   {
     protocol = "http";
     string url;
@@ -861,9 +851,10 @@ bool CWebServer::PrepareDownload(const char *path, CVariant &details, std::strin
     CURL::Encode(strPath);
     url += strPath;
     details["path"] = url;
+    return true;
   }
 
-  return exists;
+  return false;
 }
 
 bool CWebServer::Download(const char *path, CVariant &result)
