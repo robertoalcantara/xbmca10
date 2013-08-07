@@ -50,7 +50,7 @@ public:
    * returns one or a combination of VC_ messages
    * pData and iSize can be NULL, this means we should flush the rest of the data.
    */
-  int Decode(BYTE* pData, int iSize, double dts, double pts);
+  int Decode(uint8_t* pData, int iSize, double dts, double pts);
 
  /*
    * Reset the decoder.

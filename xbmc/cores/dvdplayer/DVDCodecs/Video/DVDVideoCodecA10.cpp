@@ -140,14 +140,14 @@ bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
   {
   //MPEG1
 #if A10ENABLE_MPEG1
-  case CODEC_ID_MPEG1VIDEO:
+  case AV_CODEC_ID_MPEG1VIDEO:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG2;
     m_info.sub_format = CEDARV_MPEG2_SUB_FORMAT_MPEG1;
     break;
 #endif
     //MPEG2
 #ifdef A10ENABLE_MPEG2
-  case CODEC_ID_MPEG2VIDEO:
+  case AV_CODEC_ID_MPEG2VIDEO:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG2;
     m_info.sub_format = CEDARV_MPEG2_SUB_FORMAT_MPEG2;
     //if passing init_data it fails..
@@ -157,14 +157,14 @@ bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
 #endif
     //H263
 #if A10ENABLE_H263
-  case CODEC_ID_H263:
+  case AV_CODEC_ID_H263:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_H263;
     break;
 #endif
     //H264
 #if A10ENABLE_H264
-  case CODEC_ID_H264:
+  case AV_CODEC_ID_H264:
     m_info.format = CEDARV_STREAM_FORMAT_H264;
     if(m_hints.codec_tag==27) //M2TS and TS
       m_info.container_format = CEDARV_CONTAINER_FORMAT_TS;
@@ -172,79 +172,79 @@ bool CDVDVideoCodecA10::Open(CDVDStreamInfo &hints, CDVDCodecOptions &options)
 #endif
     //VP6
 #if A10ENABLE_VP6
-  case CODEC_ID_VP6F:
+  case AV_CODEC_ID_VP6F:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_VP6;
     break;
 #endif
     //WMV1
 #if A10ENABLE_WMV1
-  case CODEC_ID_WMV1:
+  case AV_CODEC_ID_WMV1:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_WMV1;
     break;
 #endif
     //WMV2
 #if A10ENABLE_WMV2
-  case CODEC_ID_WMV2:
+  case AV_CODEC_ID_WMV2:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_WMV2;
     break;
 #endif
     //WMV3
 #if A10ENABLE_WMV3
-  case CODEC_ID_WMV3:
+  case AV_CODEC_ID_WMV3:
     m_info.format = CEDARV_STREAM_FORMAT_VC1;
     break;
 #endif
     //VC1 and WVC1
 #if A10ENABLE_VC1_WVC1
-  case CODEC_ID_VC1:
+  case AV_CODEC_ID_VC1:
     m_info.format = CEDARV_STREAM_FORMAT_VC1;
     break;
 #endif
     //MJPEG
 #if A10ENABLE_MJPEG
-  case CODEC_ID_MJPEG:
+  case AV_CODEC_ID_MJPEG:
     m_info.format = CEDARV_STREAM_FORMAT_MJPEG;
     break;
 #endif
     //VP8
 #if A10ENABLE_VP8
-  case CODEC_ID_VP8:
+  case AV_CODEC_ID_VP8:
     m_info.format = CEDARV_STREAM_FORMAT_VP8;
     break;
 #endif
     //MSMPEG4V1
 #if A10ENABLE_MPEG4V1
-  case CODEC_ID_MSMPEG4V1:
+  case AV_CODEC_ID_MSMPEG4V1:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_DIVX1;
     break;
 #endif
     //MSMPEG4V2
 #if A10ENABLE_MPEG4V2
-  case CODEC_ID_MSMPEG4V2:
+  case AV_CODEC_ID_MSMPEG4V2:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_DIVX2;
     break;
 #endif
     //MSMPEG4V3
 #if A10ENABLE_MPEG4V3
-  case CODEC_ID_MSMPEG4V3:
+  case AV_CODEC_ID_MSMPEG4V3:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_DIVX3;
     break;
 #endif
     //Sorensson Spark (FLV1)
 #if A10ENABLE_FLV1
-  case CODEC_ID_FLV1:
+  case AV_CODEC_ID_FLV1:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     m_info.sub_format = CEDARV_MPEG4_SUB_FORMAT_SORENSSON_H263;
     break;
 #endif
     //Detected as MPEG4 (ID 13)
-  case CODEC_ID_MPEG4:
+  case AV_CODEC_ID_MPEG4:
     m_info.format = CEDARV_STREAM_FORMAT_MPEG4;
     switch(m_hints.codec_tag)
     {
@@ -369,7 +369,7 @@ void CDVDVideoCodecA10::Dispose()
  * returns one or a combination of VC_ messages
  * pData and iSize can be NULL, this means we should flush the rest of the data.
  */
-int CDVDVideoCodecA10::Decode(BYTE* pData, int iSize, double dts, double pts)
+int CDVDVideoCodecA10::Decode(uint8_t* pData, int iSize, double dts, double pts)
 {
   int                        status = 0;
   s32                        ret = 0;
