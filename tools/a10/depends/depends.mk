@@ -9,7 +9,7 @@
 
 #your home dir
 #HOME=$(shell echo ~)
-HOME=/opt/a10hacking
+HOME=/home/robertoalcantara/sandbox/a10hacking
 #where your tarballs go
 TARBALLS=$(HOME)/xbmctmp/tarballs
 #whether to compile for armhf
@@ -36,13 +36,13 @@ ifeq ($(shell uname -m),armv7l)
 #
 
 #where is your arm rootfs
-SDKSTAGE=/
+SDKSTAGE=/media/robertoalcantara/57f8f4bc-abf4-655f-bf67-946fc0f9f25b/
 #where is your xbmc install root 
-XBMCPREFIX=/allwinner/xbmc-pvr-bin$(HF)
+XBMCPREFIX=/home/robertoalcantara/sandbox/a10hacking/allwinner/xbmc-pvr-bin$(HF)
 #where is your toolchain
-TOOLCHAIN=/usr
+TOOLCHAIN=/usr/bin/arm-linux-gnueabi$(HF)
 
-JOBS=1
+JOBS=4
 export HOST=arm-linux-gnueabi$(HF)
 export BUILD=arm-linux-gnueabi$(HF)
 export CROSS_COMPILE=
@@ -51,13 +51,9 @@ else
 #
 #cross compile
 #
-
-#where is your arm rootfs
-SDKSTAGE=$(HOME)/rootfs/debrootfs
-#where is your xbmc install root 
-XBMCPREFIX=/allwinner/xbmc-pvr-bin$(HF)
-#where is your toolchain
-TOOLCHAIN=/usr/arm-linux-gnueabi$(HF)
+SDKSTAGE=/media/robertoalcantara/57f8f4bc-abf4-655f-bf67-946fc0f9f25b/
+XBMCPREFIX=/home/robertoalcantara/sandbox/a10hacking/allwinner/xbmc-pvr-bin
+TOOLCHAIN=/usr/bin/arm-linux-gnueabi$(HF)
 
 JOBS=4
 export HOST=arm-linux-gnueabi$(HF)
@@ -92,7 +88,7 @@ else
 export CEDARLIBS=-L$(CEDARDIR) -lcedarv -lvecore -lcedarxalloc
 endif
 
-export RLINK_PATH=-Wl,-rpath,$(XBMCPREFIX)/lib -Wl,-rpath-link,${XBMCPREFIX}/lib:$(SDKSTAGE)/usr/local/lib:${SDKSTAGE}/lib:${SDKSTAGE}/lib/arm-linux-gnueabi$(HF):${SDKSTAGE}/usr/lib:${SDKSTAGE}/usr/lib/arm-linux-gnueabi$(HF)
+export RLINK_PATH=-lrt -Wl,-rpath,$(XBMCPREFIX)/lib -Wl,-rpath-link,${XBMCPREFIX}/lib:$(SDKSTAGE)/usr/local/lib:${SDKSTAGE}/lib:${SDKSTAGE}/lib/arm-linux-gnueabi$(HF):${SDKSTAGE}/usr/lib:${SDKSTAGE}/usr/lib/arm-linux-gnueabi$(HF)
 export LDFLAGS=\
 ${RLINK_PATH} \
 -L${XBMCPREFIX}/lib \
