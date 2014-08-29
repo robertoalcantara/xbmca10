@@ -1559,6 +1559,10 @@ bool A10VLInit(int &width, int &height, double &refreshRate)
     layera.scn_win.width  = g_width;
     layera.scn_win.height = g_height;
     layera.mode = DISP_LAYER_WORK_MODE_NORMAL;
+
+    layera.fb.format = DISP_FORMAT_ARGB8888;
+    layera.fb.seq = DISP_SEQ_ARGB;
+     
     args[0] = g_screenid;
     args[1] = g_syslayer;
     args[2] = (unsigned long) (&layera);

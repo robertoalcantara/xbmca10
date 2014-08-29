@@ -8,16 +8,16 @@
 #
 
 #your home dir
-#HOME=$(shell echo ~)
-HOME=/home/robertoalcantara/sandbox/a10hacking
+HOME=$(shell echo ~)
+#HOME=/home/robertoalcantara/sandbox/a10hacking
 #where your tarballs go
 TARBALLS=$(HOME)/xbmctmp/tarballs
 #whether to compile for armhf
 USEARMHF=1
 
 #wget-command to download files
-WGET=wget --no-check-certificate
-
+#WGET=wget --no-check-certificate
+WGET=curl -O 
 #
 # armhf notes:
 #
@@ -36,13 +36,13 @@ ifeq ($(shell uname -m),armv7l)
 #
 
 #where is your arm rootfs
-SDKSTAGE=/media/robertoalcantara/57f8f4bc-abf4-655f-bf67-946fc0f9f25b/
+SDKSTAGE=/
 #where is your xbmc install root 
-XBMCPREFIX=/home/robertoalcantara/sandbox/a10hacking/allwinner/xbmc-pvr-bin$(HF)
+XBMCPREFIX=/root/a10hacking/allwinner/xbmc-pvr-bin$(HF)
 #where is your toolchain
 TOOLCHAIN=/usr/bin/arm-linux-gnueabi$(HF)
 
-JOBS=4
+JOBS=2
 export HOST=arm-linux-gnueabi$(HF)
 export BUILD=arm-linux-gnueabi$(HF)
 export CROSS_COMPILE=
@@ -51,11 +51,11 @@ else
 #
 #cross compile
 #
-SDKSTAGE=/media/robertoalcantara/57f8f4bc-abf4-655f-bf67-946fc0f9f25b/
-XBMCPREFIX=/home/robertoalcantara/sandbox/a10hacking/allwinner/xbmc-pvr-bin
+#SDKSTAGE=/media/robertoalcantara/57f8f4bc-abf4-655f-bf67-946fc0f9f25b/
+#XBMCPREFIX=/home/robertoalcantara/sandbox/a10hacking/allwinner/xbmc-pvr-bin
 TOOLCHAIN=/usr/bin/arm-linux-gnueabi$(HF)
 
-JOBS=4
+JOBS=2
 export HOST=arm-linux-gnueabi$(HF)
 export BUILD=i686-linux
 export CROSS_COMPILE=${HOST}-
