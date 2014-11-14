@@ -25,6 +25,9 @@
 #include "DVDClock.h"
 #include "utils/MathUtils.h"
 
+#include "dialogs/GUIDialogBusy.h"
+#include "guilib/GUIWindowManager.h"
+
 using namespace std;
 
 CDVDMessageQueue::CDVDMessageQueue(const string &owner) : m_hEvent(true)
@@ -167,6 +170,17 @@ MsgQueueReturnCode CDVDMessageQueue::Get(CDVDMsg** pMsg, unsigned int iTimeoutIn
     CLog::Log(LOGWARNING, "CDVDMessageQueue(%s)::Get - asked for new data packet, with nothing available", m_owner.c_str());
 #endif
     m_bEmptied = true;
+
+   CLog::Log(LOGWARNING, "CDVDMessageQueue CRAFF Signal Error");
+
+     CGUIDialogBusy* dialog = (CGUIDialogBusy*)g_windowManager.GetWindow(WINDOW_DIALOG_BUSY);
+      if(dialog) {
+        dialog->Show();
+        g_windowManager.ProcessRenderLoop(false);
+        //dialog->Close();
+      }
+
+    return MSGQ_ABORT; //RF
   }
 
   while (!m_bAbortRequest)
