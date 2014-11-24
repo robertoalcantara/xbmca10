@@ -20,26 +20,16 @@
  *
  */
 
-#include "guilib/GUIDialog.h"
+#include "GUIDialogBoxBase.h"
 
-
-class CGUIDialogCraffSignal: public CGUIDialog
+class CGUIDialogCraffSignal :
+      public CGUIDialogBoxBase
 {
 public:
   CGUIDialogCraffSignal(void);
   virtual ~CGUIDialogCraffSignal(void);
-  virtual bool OnBack(int actionID);
-  virtual void DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyregions);
-  virtual void Render();
-  /*! \brief set the current progress of the busy operation
-   \param progress a percentage of progress
-   */
-  void SetProgress(float progress);
-
-  bool IsCanceled() { return m_bCanceled; }
+  virtual bool OnMessage(CGUIMessage& message);
+  static void ShowAndGetInput(const CVariant &heading, const CVariant &line0, const CVariant &line1, const CVariant &line2);
 protected:
-  virtual void Show_Internal(); // modeless'ish
-  bool m_bCanceled;
-  bool m_bLastVisible;
-  float m_progress; ///< current progress
+  virtual int GetDefaultLabelID(int controlId) const;
 };

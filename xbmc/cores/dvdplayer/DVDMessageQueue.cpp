@@ -175,7 +175,9 @@ MsgQueueReturnCode CDVDMessageQueue::Get(CDVDMsg** pMsg, unsigned int iTimeoutIn
 
     CLog::Log(LOGWARNING, "CDVDMessageQueue Craff Workarround - Interrompendo video");
     if (g_application.IsPlayingAudio() || g_application.IsPlayingVideo() ) { 
-       g_application.OnPlayBackEnded();  //Workarround: interrompe exibicao 
+       g_application.OnPlayBackEnded();  //Workarround: interrompe exibicao
+       //g_windowManager.ActivateWindow(WINDOW_DIALOG_CRAFF_SIGNAL); Verificar o problema - provavelmente dentro do window!
+ 
     }
   }
 

@@ -19,71 +19,49 @@
  */
 
 #include "GUIDialogCraffSignal.h"
-#include "guilib/GUIProgressControl.h"
 #include "guilib/GUIWindowManager.h"
 
-#define PROGRESS_CONTROL 10
+#define ID_BUTTON_OK   10
 
 CGUIDialogCraffSignal::CGUIDialogCraffSignal(void)
-  : CGUIDialog(WINDOW_DIALOG_BUSY, "DialogBusy.xml"), m_bLastVisible(false)
+    : CGUIDialogBoxBase(WINDOW_DIALOG_CRAFF_SIGNAL, "DialogCraffSignal.xml")
 {
-  m_loadType = LOAD_ON_GUI_INIT;
-  m_bModal = true;
-  m_progress = 0;
 }
 
 CGUIDialogCraffSignal::~CGUIDialogCraffSignal(void)
+{}
+
+bool CGUIDialogCraffSignal::OnMessage(CGUIMessage& message)
 {
-}
-
-void CGUIDialogCraffSignal::Show_Internal()
-{
-  m_bCanceled = false;
-  m_active = true;
-  m_bModal = true;
-  m_bLastVisible = true;
-  m_closing = false;
-  m_progress = 0;
-  g_windowManager.RouteToWindow(this);
-
-  // active this window...
-  CGUIMessage msg(GUI_MSG_WINDOW_INIT, 0, 0);
-  OnMessage(msg);
-}
-
-void CGUIDialogCraffSignal::DoProcess(unsigned int currentTime, CDirtyRegionList &dirtyregions)
-{
-  bool visible = g_windowManager.GetTopMostModalDialogID() == WINDOW_DIALOG_BUSY;
-  if(!visible && m_bLastVisible)
-    dirtyregions.push_back(m_renderRegion);
-  m_bLastVisible = visible;
-
-  // update the progress control if available
-  const CGUIControl *control = GetControl(PROGRESS_CONTROL);
-  if (control && control->GetControlType() == CGUIControl::GUICONTROL_PROGRESS)
+  if (message.GetMessage() == GUI_MSG_CLICKED)
   {
-    CGUIProgressControl *progress = (CGUIProgressControl *)control;
-    progress->SetPercentage(m_progress);
-    progress->SetVisible(m_progress > 0);
+    int iControl = message.GetSenderId();
+    if (iControl == ID_BUTTON_OK)
+    {
+      m_bConfirmed = true;
+      Close();
+      return true;
+    }
   }
-
-  CGUIDialog::DoProcess(currentTime, dirtyregions);
+  return CGUIDialogBoxBase::OnMessage(message);
 }
 
-void CGUIDialogCraffSignal::Render()
+// \brief Show CGUIDialogCraffSignal dialog, then wait for user to dismiss it.
+void CGUIDialogCraffSignal::ShowAndGetInput(const CVariant &heading, const CVariant &line0, const CVariant &line1, const CVariant &line2)
 {
-  if(!m_bLastVisible)
+  CGUIDialogCraffSignal *dialog = (CGUIDialogCraffSignal *)g_windowManager.GetWindow(WINDOW_DIALOG_CRAFF_SIGNAL);
+  if (!dialog) 
     return;
-  CGUIDialog::Render();
+  dialog->SetHeading(heading);
+  dialog->SetLine(0, line0);
+  dialog->SetLine(1, line1);
+  dialog->SetLine(2, line2);
+  dialog->DoModal();
 }
 
-bool CGUIDialogCraffSignal::OnBack(int actionID)
+int CGUIDialogCraffSignal::GetDefaultLabelID(int controlId) const
 {
-  m_bCanceled = true;
-  return true;
-}
-
-void CGUIDialogCraffSignal::SetProgress(float percent)
-{
-  m_progress = percent;
+  if (controlId == ID_BUTTON_OK)
+    return 186;
+  return CGUIDialogBoxBase::GetDefaultLabelID(controlId);
 }
